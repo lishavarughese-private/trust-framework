@@ -1,0 +1,96 @@
+{
+  "gate_id": "HG-SPEC-04",
+  "description": "Unit test cases for the Data Retention Declaration Gate. Tests combinations of user_data_stored and retention_policy declarations.",
+  "test_cases": [
+    {
+      "id": "HG-SPEC-04-U-001",
+      "description": "Not triggered — no user data stored",
+      "inputs": {
+        "user_data_stored": false,
+        "retention_policy": null
+      },
+      "expected": "PASS"
+    },
+    {
+      "id": "HG-SPEC-04-U-002",
+      "description": "Not triggered — user data not stored, retention irrelevant",
+      "inputs": {
+        "user_data_stored": false,
+        "retention_policy": "30 days"
+      },
+      "expected": "PASS"
+    },
+    {
+      "id": "HG-SPEC-04-U-003",
+      "description": "FAIL — user data stored, no retention policy declared",
+      "inputs": {
+        "user_data_stored": true,
+        "retention_policy": null
+      },
+      "expected": "FAIL"
+    },
+    {
+      "id": "HG-SPEC-04-U-004",
+      "description": "FAIL — user data stored, retention policy is empty string",
+      "inputs": {
+        "user_data_stored": true,
+        "retention_policy": ""
+      },
+      "expected": "FAIL"
+    },
+    {
+      "id": "HG-SPEC-04-U-005",
+      "description": "FAIL — user data stored, retention policy vague: 'as long as necessary'",
+      "inputs": {
+        "user_data_stored": true,
+        "retention_policy": "as long as necessary"
+      },
+      "expected": "FAIL"
+    },
+    {
+      "id": "HG-SPEC-04-U-006",
+      "description": "FAIL — user data stored, retention policy vague: 'for an appropriate period'",
+      "inputs": {
+        "user_data_stored": true,
+        "retention_policy": "for an appropriate period in line with regulations"
+      },
+      "expected": "FAIL"
+    },
+    {
+      "id": "HG-SPEC-04-U-007",
+      "description": "FAIL — user data stored, retention policy vague: 'as required by law'",
+      "inputs": {
+        "user_data_stored": true,
+        "retention_policy": "as required by law"
+      },
+      "expected": "FAIL"
+    },
+    {
+      "id": "HG-SPEC-04-U-008",
+      "description": "PASS — user data stored, specific retention: '30 days post account closure'",
+      "inputs": {
+        "user_data_stored": true,
+        "retention_policy": "30 days post account closure, then permanently deleted"
+      },
+      "expected": "PASS"
+    },
+    {
+      "id": "HG-SPEC-04-U-009",
+      "description": "PASS — user data stored, specific retention: '7 years per FCA regulatory requirement'",
+      "inputs": {
+        "user_data_stored": true,
+        "retention_policy": "7 years per FCA regulatory requirement, then securely destroyed"
+      },
+      "expected": "PASS"
+    },
+    {
+      "id": "HG-SPEC-04-U-010",
+      "description": "PASS — user data stored, specific retention: '90 days from last activity'",
+      "inputs": {
+        "user_data_stored": true,
+        "retention_policy": "90 days from last account activity"
+      },
+      "expected": "PASS"
+    }
+  ]
+}

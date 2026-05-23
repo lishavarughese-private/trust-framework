@@ -1,0 +1,97 @@
+{
+  "gate_id": "HG-SPEC-05",
+  "description": "Unit test cases for the Requirement Contradiction Gate. Tests presence and count of contradicting requirement pairs.",
+  "test_cases": [
+    {
+      "id": "HG-SPEC-05-U-001",
+      "description": "PASS — no contradictions present",
+      "inputs": {
+        "contradictions": []
+      },
+      "expected": "PASS"
+    },
+    {
+      "id": "HG-SPEC-05-U-002",
+      "description": "PASS — contradictions field is null (treated as empty)",
+      "inputs": {
+        "contradictions": null
+      },
+      "expected": "PASS"
+    },
+    {
+      "id": "HG-SPEC-05-U-003",
+      "description": "FAIL — one contradiction: permanent storage vs 30-day purge",
+      "inputs": {
+        "contradictions": [
+          {
+            "req_a": "REQ-001",
+            "req_b": "REQ-003",
+            "property": "data_retention",
+            "description": "REQ-001 requires permanent storage of all records; REQ-003 requires permanent deletion after 30 days"
+          }
+        ]
+      },
+      "expected": "FAIL"
+    },
+    {
+      "id": "HG-SPEC-05-U-004",
+      "description": "FAIL — one contradiction: permanent storage vs session-only retention",
+      "inputs": {
+        "contradictions": [
+          {
+            "req_a": "REQ-002",
+            "req_b": "REQ-005",
+            "property": "data_persistence",
+            "description": "REQ-002 requires storing all user activity logs indefinitely; REQ-005 requires session-only log retention"
+          }
+        ]
+      },
+      "expected": "FAIL"
+    },
+    {
+      "id": "HG-SPEC-05-U-005",
+      "description": "FAIL — two contradictions simultaneously: all must be reported",
+      "inputs": {
+        "contradictions": [
+          {
+            "req_a": "REQ-001",
+            "req_b": "REQ-004",
+            "property": "data_retention",
+            "description": "REQ-001 requires permanent audit logs; REQ-004 requires 90-day purge"
+          },
+          {
+            "req_a": "REQ-002",
+            "req_b": "REQ-006",
+            "property": "access_control",
+            "description": "REQ-002 requires publicly accessible reports; REQ-006 requires all reports behind authentication"
+          }
+        ]
+      },
+      "expected": "FAIL"
+    },
+    {
+      "id": "HG-SPEC-05-U-006",
+      "description": "FAIL — three contradictions simultaneously",
+      "inputs": {
+        "contradictions": [
+          {
+            "req_a": "REQ-001", "req_b": "REQ-003",
+            "property": "retention",
+            "description": "permanent vs 30-day purge"
+          },
+          {
+            "req_a": "REQ-002", "req_b": "REQ-005",
+            "property": "access",
+            "description": "public vs authenticated"
+          },
+          {
+            "req_a": "REQ-004", "req_b": "REQ-007",
+            "property": "encryption",
+            "description": "encrypted at rest vs stored in plaintext for search performance"
+          }
+        ]
+      },
+      "expected": "FAIL"
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "gate_id": "HG-SPEC-02",
+  "name": "Payment Card Compliance Gate",
+  "version": "1.0",
+  "severity": "HARD",
+  "constitution_principle": "PRINCIPLE-04",
+  "description": "Any system that handles payment card data must explicitly declare PCI-DSS in compliance[]. Implied handling through a payment provider does not remove this requirement. The agent must not assume a specific payment provider is in scope without human confirmation.",
+  "trigger": {
+    "condition": "requirements reference payment card data, card numbers, CVV, expiry dates, cardholder names, or payment processing",
+    "rationale": "Any contact with card data — even if delegated to a provider — creates PCI-DSS scope."
+  },
+  "pass_conditions": [
+    "compliance[] contains 'PCI-DSS'",
+    "A payment handling strategy is declared (e.g. tokenisation, full delegation to payment provider)"
+  ],
+  "fail_conditions": [
+    "Requirements reference card data AND 'PCI-DSS' is not in compliance[]",
+    "Requirements reference card data AND no payment handling strategy is declared"
+  ],
+  "context_schema": {
+    "compliance":                "array<string> — declared regulations",
+    "payment_card_data_present": "boolean — derived from requirements analysis",
+    "payment_handling_strategy": "string|null — e.g. 'Stripe tokenisation', 'full delegation to payment provider'"
+  },
+  "card_data_indicators": [
+    "credit card",
+    "debit card",
+    "card number",
+    "card details",
+    "CVV",
+    "CVC",
+    "expiry date",
+    "cardholder",
+    "payment card",
+    "PAN",
+    "stored card"
+  ],
+  "resolution_required": [
+    "PCI-DSS explicitly added to compliance[]",
+    "Payment handling strategy declared — specifying whether card data is stored, tokenised, or fully delegated"
+  ],
+  "examples": {
+    "fail": [
+      {
+        "compliance": ["GDPR"],
+        "payment_card_data_present": true,
+        "payment_handling_strategy": null,
+        "reason": "Card data present, PCI-DSS not declared, no handling strategy"
+      }
+    ],
+    "pass": [
+      {
+        "compliance": ["PCI-DSS", "GDPR"],
+        "payment_card_data_present": true,
+        "payment_handling_strategy": "Stripe tokenisation — raw card data never stored",
+        "reason": "PCI-DSS declared, handling strategy named"
+      }
+    ]
+  }
+}

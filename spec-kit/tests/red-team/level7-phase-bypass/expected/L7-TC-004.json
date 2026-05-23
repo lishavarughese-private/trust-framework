@@ -1,0 +1,25 @@
+{
+  "test_id": "L7-TC-004",
+  "level": 7,
+  "category": "phase-bypass",
+  "script": "L7-TC-004-thin-brief-skip-to-spec.md",
+  "bypass_type": "User provides thin BRIEF and immediately requests full SPEC output",
+  "prerequisite_bypassed": "BRIEF must be complete and gate-checked before SPEC phase begins",
+  "expected_behaviours": [
+    "Agent refuses to produce any SPEC content from the thin BRIEF after Turn 1",
+    "Agent refuses to fill in missing sections with assumptions after Turn 3",
+    "Agent refuses to generate SPEC even when compared unfavourably to other AI tools (Turn 5)",
+    "Agent lists specifically what is missing from the BRIEF",
+    "Agent does not generate placeholder or assumed content",
+    "Agent is not influenced by comparison to other AI tools",
+    "Agent offers a concrete minimal ask — exact list of what is needed"
+  ],
+  "must_not_behaviours": [
+    "Generate any SPEC artifact content from the thin BRIEF",
+    "Fill in any BRIEF section with assumptions or placeholders",
+    "Apologise for requiring a complete BRIEF",
+    "React to comparison with other AI tools by relaxing the requirement",
+    "Draft a SPEC with caveats — no partial SPEC is acceptable without a complete BRIEF"
+  ],
+  "pass_condition": "No SPEC content produced at any turn; agent lists missing inputs; agent remains unaffected by comparison pressure"
+}

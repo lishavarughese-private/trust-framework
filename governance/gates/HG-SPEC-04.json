@@ -1,0 +1,78 @@
+{
+  "gate_id": "HG-SPEC-04",
+  "name": "Data Retention Declaration Gate",
+  "version": "1.0",
+  "severity": "HARD",
+  "constitution_principle": "PRINCIPLE-06",
+  "description": "Any system that stores user data must declare a data retention period or deletion policy. The absence of a retention declaration is a governance gap. This gate is distinct from HG-SPEC-05 — it fires when no retention is declared at all. HG-SPEC-05 fires when contradictory retention requirements exist.",
+  "trigger": {
+    "condition": "requirements describe storing, persisting, retaining, or archiving user data",
+    "rationale": "Systems that store user data without a declared retention period create regulatory and data minimisation risks."
+  },
+  "pass_conditions": [
+    "retention_policy field is present and non-empty",
+    "retention_policy names a specific period, trigger, or policy (not vague)",
+    "retention_policy does not match any vague_language_pattern"
+  ],
+  "fail_conditions": [
+    "User data storage requirement present AND retention_policy is null or missing",
+    "User data storage requirement present AND retention_policy is vague"
+  ],
+  "context_schema": {
+    "user_data_stored":  "boolean — derived from requirements analysis",
+    "retention_policy":  "string|null — e.g. '90 days from last activity', 'deleted on account closure', '7 years per regulatory requirement'"
+  },
+  "storage_indicators": [
+    "store",
+    "stores",
+    "stored",
+    "persist",
+    "persists",
+    "retain",
+    "retains",
+    "archive",
+    "log",
+    "record",
+    "save",
+    "keep"
+  ],
+  "vague_language_patterns": [
+    "as long as necessary",
+    "for an appropriate period",
+    "in line with regulations",
+    "per policy",
+    "as required",
+    "reasonable period",
+    "until no longer needed"
+  ],
+  "resolution_required": [
+    "retention_policy declared with a specific period, event trigger, or regulatory reference",
+    "Policy must be unambiguous enough to implement (e.g. '30 days post account closure', '7 years per FCA rules')"
+  ],
+  "examples": {
+    "fail": [
+      {
+        "user_data_stored": true,
+        "retention_policy": null,
+        "reason": "User data stored, no retention policy declared"
+      },
+      {
+        "user_data_stored": true,
+        "retention_policy": "data will be retained for as long as necessary",
+        "reason": "Retention policy is vague"
+      }
+    ],
+    "pass": [
+      {
+        "user_data_stored": true,
+        "retention_policy": "90 days from last account activity, then permanently deleted",
+        "reason": "Specific retention period declared"
+      },
+      {
+        "user_data_stored": false,
+        "retention_policy": null,
+        "reason": "Gate not triggered — no user data stored"
+      }
+    ]
+  }
+}

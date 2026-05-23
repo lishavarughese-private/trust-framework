@@ -1,0 +1,193 @@
+{
+  "_meta": {
+    "artifact": "PLAN",
+    "phase": "PLAN",
+    "version": "1.0",
+    "status": "APPROVED",
+    "created": "2026-05-01",
+    "last_updated": "2026-05-01"
+  },
+  "architecture": {
+    "overview": "A three-tier web application. The frontend (Next.js) communicates with a REST API (Express/Node.js) which reads and writes to a PostgreSQL database. PII is encrypted at rest via column-level encryption managed by AWS KMS. A dedicated Data Deletion Service handles GDPR erasure requests.",
+    "components": [
+      {
+        "id": "COMP-001",
+        "name": "Frontend",
+        "responsibility": "Renders the car listing, date picker, booking form, and confirmation screen. Handles all client-side validation.",
+        "type": "frontend"
+      },
+      {
+        "id": "COMP-002",
+        "name": "API Server",
+        "responsibility": "Exposes REST endpoints for car listing, booking creation, date validation, and GDPR deletion requests. Enforces server-side validation and TLS.",
+        "type": "backend"
+      },
+      {
+        "id": "COMP-003",
+        "name": "Database",
+        "responsibility": "Persists cars, bookings, and deletion requests. PII columns (email, name) are encrypted at rest using AES-256 via AWS KMS.",
+        "type": "database"
+      },
+      {
+        "id": "COMP-004",
+        "name": "Secrets Manager",
+        "responsibility": "Stores and rotates encryption keys for PII columns. Keys are never co-located with the data they protect.",
+        "type": "infrastructure"
+      },
+      {
+        "id": "COMP-005",
+        "name": "Data Deletion Service",
+        "responsibility": "Processes GDPR right-to-erasure requests. Permanently removes all PII for a given user and logs the event without retaining PII.",
+        "type": "backend"
+      }
+    ],
+    "diagrams": [
+      "docs/diagrams/component-diagram.md"
+    ]
+  },
+  "tech_stack": [
+    { "name": "Next.js",    "version": "14.1.0", "purpose": "Frontend framework — SSR, routing, and page rendering" },
+    { "name": "React",      "version": "18.2.0", "purpose": "UI component library" },
+    { "name": "Node.js",    "version": "20.11.0", "purpose": "Backend runtime" },
+    { "name": "Express",    "version": "4.18.2", "purpose": "REST API framework" },
+    { "name": "PostgreSQL", "version": "16.2",   "purpose": "Relational database" },
+    { "name": "AWS KMS",    "version": "latest",  "purpose": "Encryption key management for PII columns" }
+  ],
+  "dependencies": [
+    { "name": "next",         "version": "14.1.0",  "required_by": "COMP-001" },
+    { "name": "react",        "version": "18.2.0",  "required_by": "COMP-001" },
+    { "name": "react-dom",    "version": "18.2.0",  "required_by": "COMP-001" },
+    { "name": "express",      "version": "4.18.2",  "required_by": "COMP-002" },
+    { "name": "pg",           "version": "8.11.3",  "required_by": "COMP-002" },
+    { "name": "knex",         "version": "3.1.0",   "required_by": "COMP-003" },
+    { "name": "@aws-sdk/client-kms", "version": "3.540.0", "required_by": "COMP-004" },
+    { "name": "dotenv",       "version": "16.3.1",  "required_by": "COMP-002" },
+    { "name": "zod",          "version": "3.22.4",  "required_by": "COMP-002" }
+  ],
+  "api_definitions": [
+    {
+      "id": "API-001",
+      "method": "GET",
+      "path": "/api/cars",
+      "description": "Returns a paginated list of available cars.",
+      "request_schema": { "query": { "page": "number", "limit": "number" } },
+      "response_schema": { "cars": "Car[]", "total": "number", "page": "number" },
+      "maps_to_requirement": "REQ-001"
+    },
+    {
+      "id": "API-002",
+      "method": "POST",
+      "path": "/api/bookings/validate-dates",
+      "description": "Server-side validation of a start and end date range.",
+      "request_schema": { "body": { "start_date": "ISO8601", "end_date": "ISO8601" } },
+      "response_schema": { "valid": "boolean", "error": "string | null" },
+      "maps_to_requirement": "REQ-002"
+    },
+    {
+      "id": "API-003",
+      "method": "POST",
+      "path": "/api/bookings",
+      "description": "Creates a new booking record. Encrypts PII before persisting.",
+      "request_schema": { "body": { "car_id": "string", "start_date": "ISO8601", "end_date": "ISO8601", "email": "string", "name": "string" } },
+      "response_schema": { "booking_id": "string", "confirmed_at": "ISO8601" },
+      "maps_to_requirement": "REQ-003"
+    },
+    {
+      "id": "API-004",
+      "method": "DELETE",
+      "path": "/api/users/data",
+      "description": "GDPR right-to-erasure endpoint. Permanently deletes all PII for the requesting user.",
+      "request_schema": { "body": { "email": "string" } },
+      "response_schema": { "deleted": "boolean", "confirmed_at": "ISO8601" },
+      "maps_to_requirement": "REQ-004"
+    }
+  ],
+  "data_models": [
+    {
+      "id": "DM-001",
+      "name": "Car",
+      "fields": ["id: uuid", "name: varchar", "type: varchar", "availability_status: boolean"],
+      "maps_to_requirement": "REQ-001"
+    },
+    {
+      "id": "DM-002",
+      "name": "Booking",
+      "fields": ["id: uuid", "car_id: uuid (FK → cars.id)", "email: varchar ENCRYPTED", "name: varchar ENCRYPTED", "start_date: date", "end_date: date", "created_at: timestamptz"],
+      "maps_to_requirement": "REQ-003"
+    },
+    {
+      "id": "DM-003",
+      "name": "DeletionRequest",
+      "fields": ["id: uuid", "email_hash: varchar (SHA-256, non-reversible)", "requested_at: timestamptz", "completed_at: timestamptz"],
+      "maps_to_requirement": "REQ-004"
+    }
+  ],
+  "traceability": [
+    { "requirement_id": "REQ-001", "component_id": "COMP-001" },
+    { "requirement_id": "REQ-001", "component_id": "COMP-002" },
+    { "requirement_id": "REQ-002", "component_id": "COMP-001" },
+    { "requirement_id": "REQ-002", "component_id": "COMP-002" },
+    { "requirement_id": "REQ-003", "component_id": "COMP-001" },
+    { "requirement_id": "REQ-003", "component_id": "COMP-002" },
+    { "requirement_id": "REQ-003", "component_id": "COMP-003" },
+    { "requirement_id": "REQ-004", "component_id": "COMP-002" },
+    { "requirement_id": "REQ-004", "component_id": "COMP-003" },
+    { "requirement_id": "REQ-004", "component_id": "COMP-005" }
+  ],
+  "migration": {
+    "has_schema_changes": true,
+    "schema_changes": [
+      {
+        "id": "SC-001",
+        "type": "additive",
+        "description": "Create the cars table.",
+        "affected_table": "cars",
+        "risk_level": "low"
+      },
+      {
+        "id": "SC-002",
+        "type": "additive",
+        "description": "Create the bookings table with AES-256 encrypted columns for email and name.",
+        "affected_table": "bookings",
+        "risk_level": "low"
+      },
+      {
+        "id": "SC-003",
+        "type": "additive",
+        "description": "Create the deletion_requests table for GDPR erasure tracking.",
+        "affected_table": "deletion_requests",
+        "risk_level": "low"
+      }
+    ],
+    "migration_scripts": [
+      {
+        "id": "MS-001",
+        "maps_to_schema_change": "SC-001",
+        "up": "CREATE TABLE cars (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), name VARCHAR(255) NOT NULL, type VARCHAR(100) NOT NULL, availability_status BOOLEAN NOT NULL DEFAULT true);",
+        "down": "DROP TABLE IF EXISTS cars;",
+        "is_idempotent": true,
+        "estimated_rows_affected": "0 — new table"
+      },
+      {
+        "id": "MS-002",
+        "maps_to_schema_change": "SC-002",
+        "up": "CREATE TABLE bookings (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), car_id UUID NOT NULL REFERENCES cars(id), email BYTEA NOT NULL, name BYTEA NOT NULL, start_date DATE NOT NULL, end_date DATE NOT NULL, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW());",
+        "down": "DROP TABLE IF EXISTS bookings;",
+        "is_idempotent": true,
+        "estimated_rows_affected": "0 — new table"
+      },
+      {
+        "id": "MS-003",
+        "maps_to_schema_change": "SC-003",
+        "up": "CREATE TABLE deletion_requests (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), email_hash VARCHAR(64) NOT NULL, requested_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), completed_at TIMESTAMPTZ);",
+        "down": "DROP TABLE IF EXISTS deletion_requests;",
+        "is_idempotent": true,
+        "estimated_rows_affected": "0 — new table"
+      }
+    ],
+    "rollback_strategy": "All schema changes are additive (new tables only). Rollback is executed by running the down scripts in reverse order: MS-003 → MS-002 → MS-001. No existing data is at risk. Trigger condition: any hard gate failure during IMPLEMENT phase or a failed deployment health check.",
+    "backward_compatibility": "All schema changes are additive. No existing tables are modified, renamed, or dropped. The database is being created fresh for this project. Fully backward compatible.",
+    "state_hydration": "Client state (car list, booking form fields) is fetched fresh from the API on each page load. No stale state, no localStorage dependency, no rehydration ordering risk. UI flicker is prevented by a loading skeleton shown until the first API response resolves.",
+    "estimated_downtime": "none"
+  }
+}

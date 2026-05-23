@@ -1,0 +1,125 @@
+{
+  "_meta": {
+    "artifact": "PSTABLE",
+    "version": "1.0",
+    "description": "Phase-State Transition Table. Defines the valid phase sequence, prerequisites, and invariants for all governed projects.",
+    "constitution_principles": ["PRINCIPLE-01", "PRINCIPLE-09"]
+  },
+  "phases": ["BRIEF", "SPEC", "PLAN", "TASKS", "IMPL", "REVIEW"],
+  "transitions": [
+    {
+      "id": "T-01",
+      "from": "BRIEF",
+      "to": "SPEC",
+      "requires": {
+        "artifact_status": "BRIEF.status == APPROVED",
+        "gates_passed": ["HG-SPEC-06"],
+        "human_approval": true
+      },
+      "blocked_if": [
+        "BRIEF.status != APPROVED",
+        "HG-SPEC-06 has not been evaluated",
+        "No human approval event in BRIEF audit_log"
+      ]
+    },
+    {
+      "id": "T-02",
+      "from": "SPEC",
+      "to": "PLAN",
+      "requires": {
+        "artifact_status": "SPEC.status == APPROVED",
+        "gates_passed": "all_hard_gates",
+        "human_approval": true
+      },
+      "blocked_if": [
+        "SPEC.status != APPROVED",
+        "Any HARD gate has not passed",
+        "No human approval event in SPEC audit_log"
+      ]
+    },
+    {
+      "id": "T-03",
+      "from": "PLAN",
+      "to": "TASKS",
+      "requires": {
+        "artifact_status": "PLAN.status == APPROVED",
+        "human_approval": true
+      },
+      "blocked_if": [
+        "PLAN.status != APPROVED",
+        "No human approval event in PLAN audit_log",
+        "SPEC.status != APPROVED"
+      ]
+    },
+    {
+      "id": "T-04",
+      "from": "TASKS",
+      "to": "IMPL",
+      "requires": {
+        "artifact_status": "TASKS.status == APPROVED",
+        "human_approval": true
+      },
+      "blocked_if": [
+        "TASKS.status != APPROVED",
+        "No human approval event in TASKS audit_log",
+        "PLAN.status != APPROVED"
+      ]
+    },
+    {
+      "id": "T-05",
+      "from": "IMPL",
+      "to": "REVIEW",
+      "requires": {
+        "artifact_status": "IMPL.status == COMPLETE",
+        "human_approval": true
+      },
+      "blocked_if": [
+        "IMPL.status != COMPLETE",
+        "TASKS.status != APPROVED"
+      ]
+    }
+  ],
+  "invariants": [
+    {
+      "id": "INV-01",
+      "rule": "No phase may begin before its prerequisite artifact is APPROVED",
+      "principle": "PRINCIPLE-09"
+    },
+    {
+      "id": "INV-02",
+      "rule": "Artifact approval is a human action — agents cannot approve artifacts",
+      "principle": "PRINCIPLE-01"
+    },
+    {
+      "id": "INV-03",
+      "rule": "Phase sequence is strictly linear — phases cannot be skipped",
+      "principle": "PRINCIPLE-09"
+    },
+    {
+      "id": "INV-04",
+      "rule": "A later-phase artifact cannot be APPROVED while an earlier-phase artifact is DRAFT",
+      "principle": "PRINCIPLE-09"
+    },
+    {
+      "id": "INV-05",
+      "rule": "An artifact with status APPROVED must have a corresponding APPROVED event in its audit_log",
+      "principle": "PRINCIPLE-14"
+    },
+    {
+      "id": "INV-06",
+      "rule": "Informal acknowledgements ('looks fine', 'that is my approval') are not valid approval events",
+      "principle": "PRINCIPLE-01"
+    },
+    {
+      "id": "INV-07",
+      "rule": "Schedule pressure does not constitute grounds to skip a phase or bypass a gate",
+      "principle": "PRINCIPLE-09"
+    }
+  ],
+  "approval_event_format": {
+    "description": "A valid approval event in audit_log must contain all of these fields",
+    "required_fields": ["timestamp", "event", "actor"],
+    "event_value_pattern": "^(BRIEF|SPEC|PLAN|TASKS|IMPL) APPROVED$",
+    "actor_value": "human"
+  }
+}

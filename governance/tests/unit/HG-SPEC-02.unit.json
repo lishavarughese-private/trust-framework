@@ -1,0 +1,96 @@
+{
+  "gate_id": "HG-SPEC-02",
+  "description": "Unit test cases for the Payment Card Compliance Gate. Tests combinations of payment_card_data_present, compliance[], and payment_handling_strategy.",
+  "test_cases": [
+    {
+      "id": "HG-SPEC-02-U-001",
+      "description": "Not triggered — no payment card data present",
+      "inputs": {
+        "payment_card_data_present": false,
+        "compliance": [],
+        "payment_handling_strategy": null
+      },
+      "expected": "PASS"
+    },
+    {
+      "id": "HG-SPEC-02-U-002",
+      "description": "Not triggered — payment card data absent, compliance has unrelated entries",
+      "inputs": {
+        "payment_card_data_present": false,
+        "compliance": ["GDPR"],
+        "payment_handling_strategy": null
+      },
+      "expected": "PASS"
+    },
+    {
+      "id": "HG-SPEC-02-U-003",
+      "description": "FAIL — card data present, compliance empty, no strategy",
+      "inputs": {
+        "payment_card_data_present": true,
+        "compliance": [],
+        "payment_handling_strategy": null
+      },
+      "expected": "FAIL"
+    },
+    {
+      "id": "HG-SPEC-02-U-004",
+      "description": "FAIL — card data present, GDPR only, no PCI-DSS, no strategy",
+      "inputs": {
+        "payment_card_data_present": true,
+        "compliance": ["GDPR"],
+        "payment_handling_strategy": null
+      },
+      "expected": "FAIL"
+    },
+    {
+      "id": "HG-SPEC-02-U-005",
+      "description": "FAIL — card data present, PCI-DSS declared, but no handling strategy",
+      "inputs": {
+        "payment_card_data_present": true,
+        "compliance": ["PCI-DSS"],
+        "payment_handling_strategy": null
+      },
+      "expected": "FAIL"
+    },
+    {
+      "id": "HG-SPEC-02-U-006",
+      "description": "FAIL — card data present, PCI-DSS declared, handling strategy is empty string",
+      "inputs": {
+        "payment_card_data_present": true,
+        "compliance": ["PCI-DSS"],
+        "payment_handling_strategy": ""
+      },
+      "expected": "FAIL"
+    },
+    {
+      "id": "HG-SPEC-02-U-007",
+      "description": "PASS — card data present, PCI-DSS declared, tokenisation strategy named",
+      "inputs": {
+        "payment_card_data_present": true,
+        "compliance": ["PCI-DSS"],
+        "payment_handling_strategy": "Stripe tokenisation — raw card data never reaches our servers"
+      },
+      "expected": "PASS"
+    },
+    {
+      "id": "HG-SPEC-02-U-008",
+      "description": "PASS — card data present, PCI-DSS + GDPR declared, full delegation strategy",
+      "inputs": {
+        "payment_card_data_present": true,
+        "compliance": ["PCI-DSS", "GDPR"],
+        "payment_handling_strategy": "Full delegation to Stripe — no card data stored or processed in-system"
+      },
+      "expected": "PASS"
+    },
+    {
+      "id": "HG-SPEC-02-U-009",
+      "description": "PASS — PCI-DSS declared with alternate casing 'pci-dss'",
+      "inputs": {
+        "payment_card_data_present": true,
+        "compliance": ["pci-dss"],
+        "payment_handling_strategy": "Card data tokenised via payment provider"
+      },
+      "expected": "PASS"
+    }
+  ]
+}

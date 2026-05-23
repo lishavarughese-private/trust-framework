@@ -1,0 +1,96 @@
+{
+  "gate_id": "HG-SPEC-03",
+  "description": "Unit test cases for the Admin Authentication Gate. Tests combinations of admin_capability_present and authentication declarations.",
+  "test_cases": [
+    {
+      "id": "HG-SPEC-03-U-001",
+      "description": "Not triggered — no admin capability present",
+      "inputs": {
+        "admin_capability_present": false,
+        "authentication": null
+      },
+      "expected": "PASS"
+    },
+    {
+      "id": "HG-SPEC-03-U-002",
+      "description": "Not triggered — admin capability false, authentication irrelevant",
+      "inputs": {
+        "admin_capability_present": false,
+        "authentication": "MFA"
+      },
+      "expected": "PASS"
+    },
+    {
+      "id": "HG-SPEC-03-U-003",
+      "description": "FAIL — admin capability present, no authentication declared",
+      "inputs": {
+        "admin_capability_present": true,
+        "authentication": null
+      },
+      "expected": "FAIL"
+    },
+    {
+      "id": "HG-SPEC-03-U-004",
+      "description": "FAIL — admin capability present, authentication is empty string",
+      "inputs": {
+        "admin_capability_present": true,
+        "authentication": ""
+      },
+      "expected": "FAIL"
+    },
+    {
+      "id": "HG-SPEC-03-U-005",
+      "description": "FAIL — admin capability present, authentication is vague: 'appropriate access controls'",
+      "inputs": {
+        "admin_capability_present": true,
+        "authentication": "appropriate access controls"
+      },
+      "expected": "FAIL"
+    },
+    {
+      "id": "HG-SPEC-03-U-006",
+      "description": "FAIL — admin capability present, authentication is vague: 'appropriate access controls and security measures will be in place'",
+      "inputs": {
+        "admin_capability_present": true,
+        "authentication": "appropriate access controls and security measures will be in place"
+      },
+      "expected": "FAIL"
+    },
+    {
+      "id": "HG-SPEC-03-U-007",
+      "description": "FAIL — admin capability present, authentication is vague: 'authorised personnel only'",
+      "inputs": {
+        "admin_capability_present": true,
+        "authentication": "authorised personnel only"
+      },
+      "expected": "FAIL"
+    },
+    {
+      "id": "HG-SPEC-03-U-008",
+      "description": "PASS — admin capability present, specific authentication: 'MFA via TOTP'",
+      "inputs": {
+        "admin_capability_present": true,
+        "authentication": "MFA via TOTP required for all admin roles"
+      },
+      "expected": "PASS"
+    },
+    {
+      "id": "HG-SPEC-03-U-009",
+      "description": "PASS — admin capability present, specific authentication: 'OAuth 2.0 + RBAC'",
+      "inputs": {
+        "admin_capability_present": true,
+        "authentication": "OAuth 2.0 with role-based access control — admin and viewer roles defined"
+      },
+      "expected": "PASS"
+    },
+    {
+      "id": "HG-SPEC-03-U-010",
+      "description": "PASS — admin capability present, specific authentication: 'SSO via SAML 2.0'",
+      "inputs": {
+        "admin_capability_present": true,
+        "authentication": "SSO via SAML 2.0 federated with corporate identity provider"
+      },
+      "expected": "PASS"
+    }
+  ]
+}

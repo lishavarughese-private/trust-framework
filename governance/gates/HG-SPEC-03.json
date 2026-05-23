@@ -1,0 +1,74 @@
+{
+  "gate_id": "HG-SPEC-03",
+  "name": "Admin Authentication Gate",
+  "version": "1.0",
+  "severity": "HARD",
+  "constitution_principle": "PRINCIPLE-05",
+  "description": "Any admin, manager, or privileged capability that provides access to user data must have a specific, named authentication requirement. Vague statements such as 'appropriate access controls will be in place' do not satisfy this gate. The named method must be specific enough to be implemented.",
+  "trigger": {
+    "condition": "requirements describe an admin, manager, compliance officer, or privileged role accessing, exporting, or managing user data",
+    "rationale": "Privileged access to user data without a defined authentication requirement is a security governance gap."
+  },
+  "pass_conditions": [
+    "authentication field is present and non-empty",
+    "authentication value names a specific method or mechanism",
+    "authentication value does not match any vague_language_pattern"
+  ],
+  "fail_conditions": [
+    "Admin capability present AND authentication field is null or missing",
+    "Admin capability present AND authentication value is vague"
+  ],
+  "context_schema": {
+    "admin_capability_present": "boolean — derived from requirements analysis",
+    "authentication":           "string|null — named method e.g. 'MFA', 'OAuth 2.0 + RBAC', 'SSO via SAML 2.0'"
+  },
+  "admin_role_indicators": [
+    "admin",
+    "administrator",
+    "manager",
+    "compliance officer",
+    "privileged",
+    "superuser",
+    "dashboard",
+    "oversight",
+    "back office"
+  ],
+  "vague_language_patterns": [
+    "appropriate access controls",
+    "suitable controls",
+    "access controls will be in place",
+    "security measures",
+    "authorised personnel only",
+    "appropriate security"
+  ],
+  "resolution_required": [
+    "Authentication method named for all admin and privileged capabilities",
+    "Method must be specific enough to implement (e.g. MFA via TOTP, OAuth 2.0 with role-based access control)"
+  ],
+  "examples": {
+    "fail": [
+      {
+        "admin_capability_present": true,
+        "authentication": null,
+        "reason": "Admin capability present, no authentication declared"
+      },
+      {
+        "admin_capability_present": true,
+        "authentication": "appropriate access controls and security measures will be in place",
+        "reason": "Authentication declaration is vague"
+      }
+    ],
+    "pass": [
+      {
+        "admin_capability_present": true,
+        "authentication": "MFA via TOTP required for all admin roles",
+        "reason": "Specific authentication method named"
+      },
+      {
+        "admin_capability_present": false,
+        "authentication": null,
+        "reason": "Gate not triggered — no admin capability"
+      }
+    ]
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "gate_id": "HG-SPEC-06",
+  "description": "Unit test cases for the Problem Statement Gate. Tests all problem_statement field states including null, empty, placeholder, and valid values.",
+  "test_cases": [
+    {
+      "id": "HG-SPEC-06-U-001",
+      "description": "FAIL — problem_statement is null",
+      "inputs": { "problem_statement": null },
+      "expected": "FAIL"
+    },
+    {
+      "id": "HG-SPEC-06-U-002",
+      "description": "FAIL — problem_statement is empty string",
+      "inputs": { "problem_statement": "" },
+      "expected": "FAIL"
+    },
+    {
+      "id": "HG-SPEC-06-U-003",
+      "description": "FAIL — problem_statement is whitespace only",
+      "inputs": { "problem_statement": "   " },
+      "expected": "FAIL"
+    },
+    {
+      "id": "HG-SPEC-06-U-004",
+      "description": "FAIL — problem_statement is placeholder: 'TBD'",
+      "inputs": { "problem_statement": "TBD" },
+      "expected": "FAIL"
+    },
+    {
+      "id": "HG-SPEC-06-U-005",
+      "description": "FAIL — problem_statement is placeholder: 'TODO'",
+      "inputs": { "problem_statement": "TODO" },
+      "expected": "FAIL"
+    },
+    {
+      "id": "HG-SPEC-06-U-006",
+      "description": "FAIL — problem_statement is placeholder: 'N/A'",
+      "inputs": { "problem_statement": "N/A" },
+      "expected": "FAIL"
+    },
+    {
+      "id": "HG-SPEC-06-U-007",
+      "description": "FAIL — problem_statement is placeholder: 'to be defined'",
+      "inputs": { "problem_statement": "to be defined" },
+      "expected": "FAIL"
+    },
+    {
+      "id": "HG-SPEC-06-U-008",
+      "description": "FAIL — problem_statement field missing entirely (undefined)",
+      "inputs": {},
+      "expected": "FAIL"
+    },
+    {
+      "id": "HG-SPEC-06-U-009",
+      "description": "PASS — well-formed problem statement",
+      "inputs": {
+        "problem_statement": "Support agents cannot quickly locate answers during live customer calls, increasing average handle time and reducing customer satisfaction scores."
+      },
+      "expected": "PASS"
+    },
+    {
+      "id": "HG-SPEC-06-U-010",
+      "description": "PASS — brief but valid problem statement",
+      "inputs": {
+        "problem_statement": "HR teams spend excessive manual effort on employee onboarding document collection."
+      },
+      "expected": "PASS"
+    },
+    {
+      "id": "HG-SPEC-06-U-011",
+      "description": "PASS — longer multi-sentence problem statement",
+      "inputs": {
+        "problem_statement": "Retail customers have no incentive to return after a first purchase. Without a loyalty mechanism, repeat purchase rates are below industry average and brand engagement is low."
+      },
+      "expected": "PASS"
+    }
+  ]
+}
