@@ -58,3 +58,11 @@ Unit test fixtures exist but `tests/unit/run-unit-tests.js` needs verification.
 
 Currently invoked as `node scripts/speckit.js gate TASKS`.
 Should be `speckit gate TASKS` via npm packaging with a bin entry in package.json.
+## 7. Fix `speckit` CLI Command Not Found
+
+After `npm link`, `speckit` is installed globally but not recognized in PowerShell because the npm global path (`C:\Users\ashwi\AppData\Roaming\npm`) was added to the user PATH after the terminal session started.
+
+**Fix:** Either:
+- Close and reopen the terminal (PATH is set correctly now)
+- Or add to PATH manually: `$env:Path += ";C:\Users\ashwi\AppData\Roaming\npm"`
+- Current workaround: run `node scripts/speckit.js gate <phase>` instead
