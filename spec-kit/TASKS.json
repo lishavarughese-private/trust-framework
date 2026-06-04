@@ -10,7 +10,7 @@
   "tasks": [
     {
       "id": "TASK-001",
-      "title": "Run migration MS-001 — Create cars table",
+      "title": "Run migration MS-001 â€” Create cars table",
       "description": "Execute the up script for MS-001 to create the cars table in PostgreSQL. Verify the table exists and the down script (DROP TABLE IF EXISTS cars) rolls back cleanly.",
       "status": "todo",
       "priority": "high",
@@ -20,14 +20,14 @@
         "cars table exists in the database after running the up script",
         "cars table has columns: id, name, type, availability_status",
         "Running the down script drops the cars table cleanly",
-        "Migration is idempotent — running up twice does not error"
+        "Migration is idempotent â€” running up twice does not error"
       ],
       "dependencies": [],
       "estimated_effort": "0.5d"
     },
     {
       "id": "TASK-002",
-      "title": "Run migration MS-002 — Create bookings table",
+      "title": "Run migration MS-002 â€” Create bookings table",
       "description": "Execute the up script for MS-002 to create the bookings table with BYTEA columns for encrypted PII (email, name). Verify FK to cars and down script rollback.",
       "status": "todo",
       "priority": "high",
@@ -38,14 +38,14 @@
         "email and name columns are of type BYTEA",
         "car_id foreign key references cars(id)",
         "Running the down script drops the bookings table cleanly",
-        "Migration is idempotent — running up twice does not error"
+        "Migration is idempotent â€” running up twice does not error"
       ],
       "dependencies": ["TASK-001"],
       "estimated_effort": "0.5d"
     },
     {
       "id": "TASK-003",
-      "title": "Run migration MS-003 — Create deletion_requests table",
+      "title": "Run migration MS-003 â€” Create deletion_requests table",
       "description": "Execute the up script for MS-003 to create the deletion_requests table for GDPR erasure tracking. Verify the down script rolls back cleanly.",
       "status": "todo",
       "priority": "high",
@@ -54,9 +54,9 @@
       "acceptance_criteria": [
         "deletion_requests table exists after running the up script",
         "Table has columns: id, email_hash, requested_at, completed_at",
-        "email_hash is VARCHAR(64) — non-reversible SHA-256 hash",
+        "email_hash is VARCHAR(64) â€” non-reversible SHA-256 hash",
         "Running the down script drops the deletion_requests table cleanly",
-        "Migration is idempotent — running up twice does not error"
+        "Migration is idempotent â€” running up twice does not error"
       ],
       "dependencies": ["TASK-001", "TASK-002"],
       "estimated_effort": "0.5d"
@@ -75,7 +75,7 @@
         "Pagination works correctly with page and limit query params",
         "Response time is under 3 seconds",
         "Invalid query params return a 400 error with a clear message",
-        "Error handling is implemented — DB errors return 500 with no stack trace exposed"
+        "Error handling is implemented â€” DB errors return 500 with no stack trace exposed"
       ],
       "dependencies": ["TASK-001"],
       "estimated_effort": "1d"
@@ -112,7 +112,7 @@
         "Returns { valid: false, error: '...' } if end_date is before start_date",
         "Returns { valid: false, error: '...' } if start_date is in the past",
         "Invalid or missing date fields return a 400 error",
-        "Error handling is implemented — unexpected errors return 500 with no stack trace exposed"
+        "Error handling is implemented â€” unexpected errors return 500 with no stack trace exposed"
       ],
       "dependencies": [],
       "estimated_effort": "0.5d"
@@ -146,7 +146,7 @@
       "acceptance_criteria": [
         "encrypt(value) returns a BYTEA-compatible encrypted buffer",
         "decrypt(buffer) returns the original plaintext",
-        "Encryption key is loaded from AWS KMS — not from env or codebase",
+        "Encryption key is loaded from AWS KMS â€” not from env or codebase",
         "No plaintext PII is logged at any point during encrypt/decrypt",
         "Unit tests cover encrypt and decrypt round-trip"
       ],
@@ -167,7 +167,7 @@
         "Missing required fields return a 400 error with field-level error messages",
         "Invalid car_id returns a 404 error",
         "Server-side date validation is enforced before persisting",
-        "Error handling is implemented — DB errors return 500 with no stack trace exposed"
+        "Error handling is implemented â€” DB errors return 500 with no stack trace exposed"
       ],
       "dependencies": ["TASK-002", "TASK-008"],
       "estimated_effort": "1d"
@@ -222,7 +222,7 @@
         "Missing or invalid email returns a 400 error",
         "Endpoint is accessible and responds within 24 hours SLA",
         "No PII is logged during the request lifecycle",
-        "Error handling is implemented — unexpected errors return 500 with no stack trace exposed"
+        "Error handling is implemented â€” unexpected errors return 500 with no stack trace exposed"
       ],
       "dependencies": ["TASK-011"],
       "estimated_effort": "0.5d"
