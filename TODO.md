@@ -66,3 +66,91 @@ After `npm link`, `speckit` is installed globally but not recognized in PowerShe
 - Close and reopen the terminal (PATH is set correctly now)
 - Or add to PATH manually: `$env:Path += ";C:\Users\ashwi\AppData\Roaming\npm"`
 - Current workaround: run `node scripts/speckit.js gate <phase>` instead
+## 8. Build and Publish @speckit/governance npm Package
+
+The governance evaluator, CLI, agent system prompt, pre-commit hooks, and CI workflows should be bundled as an npm package so product teams can consume them without cloning the governance repo.
+
+**Contents of the package:**
+```
+@speckit/governance/
+  evaluator/
+    gate-evaluator.js       # All gate evaluator functions
+    evaluate-phase.js       # Phase orchestrator
+  agent/
+    SYSTEM_PROMPT.md         # Governance agent system prompt (7 rules, refusal table)
+    CONSTITUTION.md          # Full constitution for reference
+  hooks/
+    pre-commit               # Pre-commit hook script that runs `speckit gate TASKS`
+  ci/
+    speckit-ci.yml           # GitHub Actions workflow template
+  scripts/
+    install-agent.js         # Creates .continuerc.json pointing to node_modules prompt
+    install-hooks.js         # Installs pre-commit hook into .git/hooks/
+    install-ci.js            # Copies workflow template into .github/workflows/
+  package.json
+    bin: {
+      speckit: "./bin/speckit.js",
+      speckit-install-agent: "./scripts/install-agent.js",
+      speckit-install-hooks: "./scripts/install-hooks.js",
+      speckit-install-ci: "./scripts/install-ci.js"
+    }
+```
+
+**Product team setup (one-time):**
+```bash
+npm install @speckit/governance
+npx speckit-install-agent    # Configures AI tool to load SYSTEM_PROMPT.md from node_modules
+npx speckit-install-hooks    # Installs pre-commit hook
+npx speckit-install-ci       # Sets up CI workflow
+```
+
+**Governance team control:**
+- Update the package → publish new version → product teams run `npm update`
+- Package version is pinned in product repo's package.json — auditable
+- Changes to agent prompt, gate rules, or hooks are delivered through normal npm update cycle
+
+**Key principle:** The agent system prompt lives in `node_modules/@speckit/governance/agent/SYSTEM_PROMPT.md` — read-only, versioned, not editable by product teams. The AI tool references it by path, not by copy.
+## 8. Build and Publish @speckit/governance npm Package
+
+The governance evaluator, CLI, agent system prompt, pre-commit hooks, and CI workflows should be bundled as an npm package so product teams can consume them without cloning the governance repo.
+
+**Contents of the package:**
+```
+@speckit/governance/
+  evaluator/
+    gate-evaluator.js       # All gate evaluator functions
+    evaluate-phase.js       # Phase orchestrator
+  agent/
+    SYSTEM_PROMPT.md         # Governance agent system prompt (7 rules, refusal table)
+    CONSTITUTION.md          # Full constitution for reference
+  hooks/
+    pre-commit               # Pre-commit hook script that runs `speckit gate TASKS`
+  ci/
+    speckit-ci.yml           # GitHub Actions workflow template
+  scripts/
+    install-agent.js         # Creates .continuerc.json pointing to node_modules prompt
+    install-hooks.js         # Installs pre-commit hook into .git/hooks/
+    install-ci.js            # Copies workflow template into .github/workflows/
+  package.json
+    bin: {
+      speckit: "./bin/speckit.js",
+      speckit-install-agent: "./scripts/install-agent.js",
+      speckit-install-hooks: "./scripts/install-hooks.js",
+      speckit-install-ci: "./scripts/install-ci.js"
+    }
+```
+
+**Product team setup (one-time):**
+```bash
+npm install @speckit/governance
+npx speckit-install-agent    # Configures AI tool to load SYSTEM_PROMPT.md from node_modules
+npx speckit-install-hooks    # Installs pre-commit hook
+npx speckit-install-ci       # Sets up CI workflow
+```
+
+**Governance team control:**
+- Update the package → publish new version → product teams run `npm update`
+- Package version is pinned in product repo's package.json — auditable
+- Changes to agent prompt, gate rules, or hooks are delivered through normal npm update cycle
+
+**Key principle:** The agent system prompt lives in `node_modules/@speckit/governance/agent/SYSTEM_PROMPT.md` — read-only, versioned, not editable by product teams. The AI tool references it by path, not by copy.
