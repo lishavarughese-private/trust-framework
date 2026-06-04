@@ -404,7 +404,7 @@ function cmdHelp() {
   console.log("Usage:");
   console.log("  node scripts/speckit.js gate <phase>              Run gates for a phase");
   console.log("  node scripts/speckit.js gate <phase> --out <file> Run gates and save report to file");
-  console.log("  node scripts/speckit.js watch <phase>             Watch files and auto-trigger gates on change");
+  console.log("  node scripts/speckit.js watch <phase>             Watch for git staging and auto-trigger gates");
   console.log("  node scripts/speckit.js list-gates [phase]        List gates for a phase");
   console.log("  node scripts/speckit.js help                      Show this help");
   console.log("");
