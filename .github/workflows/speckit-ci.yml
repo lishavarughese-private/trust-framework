@@ -41,7 +41,7 @@ jobs:
         id: gates
         run: |
           mkdir -p ci-reports
-          node scripts/speckit.js gate --auto --html 2>&1 | tee ci-reports/gate-output.txt
+          node scripts/speckit.js gate --auto --html 2>&1
           echo "EXIT_CODE=$?" >> $GITHUB_OUTPUT
         continue-on-error: true
 

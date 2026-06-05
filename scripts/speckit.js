@@ -50,10 +50,6 @@ function saveReport(phase, manifest, opts) {
     blocking_failures: manifest.blocking_failures
   };
 
-  // Write JSON
-  fs.writeFileSync(jsonPath, JSON.stringify(report, null, 2), "utf8");
-  fs.writeFileSync(latestJson, JSON.stringify(report, null, 2), "utf8");
-
   // Write HTML if requested
   if (opts && opts.html) {
     var html = generateHtmlReport(phase, manifest, report);
