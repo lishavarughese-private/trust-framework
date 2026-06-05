@@ -577,3 +577,4 @@ if (command === "gate") {
   console.error("Run: node scripts/speckit.js help");
   process.exit(1);
 }
+// Test comment for CI
