@@ -1,4 +1,4 @@
-﻿name: Spec-Kit CI Gates
+name: Spec-Kit CI Gates
 
 on:
   pull_request:
@@ -68,90 +68,94 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const fs = require('fs');
-            const path = require('path');
-
-            const reportsDir = 'ci-reports';
+            const fs = require("fs");
+            const path = require("path");
+            const reportsDir = "ci-reports";
             let jsonContent = null;
-            let phaseName = '';
-            for (const phase of ['IMPL', 'TASKS', 'PLAN', 'SPEC']) {
-              const j = path.join(reportsDir, phase + '-gate-report-latest.json');
+            let phaseName = "";
+            for (const phase of ["IMPL", "TASKS", "PLAN", "SPEC"]) {
+              const j = path.join(reportsDir, phase + "-gate-report-latest.json");
               if (fs.existsSync(j)) {
-                jsonContent = JSON.parse(fs.readFileSync(j, 'utf8'));
+                jsonContent = JSON.parse(fs.readFileSync(j, "utf8"));
                 phaseName = phase;
                 break;
               }
             }
-
             if (!jsonContent) {
-              console.log('No gate report found');
+              console.log("No gate report found");
               return;
             }
-
-            const hardResult = jsonContent.transition_allowed ? 'PASS' : 'FAIL';
-            const hIcon  = hardResult === 'PASS' ? '\u2705' : '\u26D4';
+            const hardResult = jsonContent.transition_allowed ? "PASS" : "FAIL";
+            const hIcon = hardResult === "PASS" ? "\u2705" : "\u26D4";
             const s = jsonContent.summary || {};
             const gates = jsonContent.gates || [];
-
-            let gateRows = gates.map(function(g) {
-              const icon = g.result === 'PASS' ? '\u2705' : '\u26D4';
-              return '| ' + icon + ' | ' + (g.gate || '') + ' | ' + (g.severity || '') + ' | ' + (g.reason || '') + ' |';
-            }).join('\n');
-
-            let blockText = '';
-            const blocks = jsonContent.blocking_failures || [];
-            if (blocks.length > 0) {
-              blockText = '\n### \u26D4 Blocking Failures\n';
-              blockText += blocks.map(function(b) {
-                return '* **' + b.gate + '** \u2014 ' + (b.reason || '');
-              }).join('\n');
+            const passed = gates.filter(g => g.result === "PASS");
+            const failed = gates.filter(g => g.result === "FAIL");
+            const info = gates.filter(g => g.severity === "INFO");
+            
+            let body = "";
+            body += "## \u{1F3DB}\uFE0F Spec-Kit Gate Report\\n\\n";
+            body += "### " + hIcon + " " + phaseName + " Phase: " + hardResult + "\\n";
+            body += "> " + (s.passed || 0) + "/" + (s.total_gates || 0) + " gates passed | " + (s.hard_failures || 0) + " HARD failures | " + (s.soft_warnings || 0) + " SOFT warnings\\n\\n";
+            body += hardResult === "PASS" ? "\u2705 **All HARD gates passed.**" : "\u26D4 **HARD gate failure. Merge is BLOCKED.**";
+            
+            body += "\\n\\n---\\n\\n### \u2705 Passed Gates (" + passed.length + ")\\n\\n";
+            body += "| Gate | Severity |\\n|------|----------|\\n";
+            body += passed.map(g => "| " + (g.gate || "") + " | " + (g.severity || "") + " |").join("\\n");
+            
+            if (failed.length > 0) {
+              body += "\\n\\n---\\n\\n### \u26D4 Failed Gates (" + failed.length + ")\\n\\n";
+              failed.forEach(function(g) {
+                var sevIcon = g.severity === "HARD" ? "\u26D4" : "\u26A0\uFE0F";
+                body += "#### " + sevIcon + " " + (g.gate || "") + " (" + (g.severity || "") + ") \u2014 " + (g.name || "") + "\\n\\n";
+                body += "| Location | Detail |\\n|----------|--------|\\n";
+                var items = (g.reason || "").split(/[;\\n]/);
+                items.forEach(function(item) {
+                  item = item.trim();
+                  if (!item) return;
+                  var match = item.match(/(.*? in )?([a-zA-Z0-9_\\\/.\-]+)\s+line\s+(\d+)/i);
+                  if (match) {
+                    body += "| " + match[2] + ":" + match[3] + " | " + item + " |\\n";
+                  } else {
+                    body += "| - | " + item + " |\\n";
+                  }
+                })
+              })
             }
-
-            const artifactUrl = context.serverUrl + '/' + context.repo.owner + '/' + context.repo.repo + '/actions/runs/' + context.runId + '/artifacts';
-
-            const body = '## \u{1F3DB}\uFE0F Spec-Kit Gate Report\n\n' +
-              '### ' + hIcon + ' ' + phaseName + ' Phase: ' + hardResult + '\n' +
-              '> ' + (s.passed || 0) + '/' + (s.total_gates || 0) + ' gates passed | ' +
-              (s.hard_failures || 0) + ' HARD failures | ' +
-              (s.soft_warnings || 0) + ' SOFT warnings\n\n' +
-              (hardResult === 'PASS'
-                ? '\u2705 **All HARD gates passed.**'
-                : '\u26D4 **HARD gate failure. Merge is BLOCKED.**') +
-              '\n\n' +
-              '| Status | Gate | Severity | Reason |\n' +
-              '|--------|------|----------|--------|\n' +
-              gateRows +
-              blockText +
-              '\n\n' +
-              '\uD83D\uDCC4 [Download full HTML report](' + artifactUrl + ')' +
-              '\n\n' +
-              '*Generated by Spec-Kit CI*';
-
+            
+            if (info.length > 0) {
+              body += "\\n\\n---\\n\\n### \u2139\uFE0F Info (" + info.length + ")\\n\\n";
+              body += "| Gate | Detail |\\n|------|--------|\\n";
+              body += info.map(g => "| " + (g.gate || "") + " | " + (g.reason || "") + " |").join("\\n");
+            }
+            
+            body += "\\n\\n---\\n\\n" + "\uD83D\uDCC4 [View workflow run](https://github.com/" + context.repo.owner + "/" + context.repo.repo + "/actions/runs/" + context.runId + ")\\n\\n";
+            body += "*Generated by Spec-Kit CI*";
+            
             const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
-            });
-            const existing = comments.find(c => c.body.includes('Spec-Kit Gate Report'));
-
+            })
+            const existing = comments.find(c => c.body.includes("Spec-Kit Gate Report"))
             if (existing) {
               await github.rest.issues.updateComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 comment_id: existing.id,
                 body,
-              });
+              })
             } else {
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: context.issue.number,
                 body,
-              });
+              })
             }
 
       - name: Fail job if hard gate failed
-        if: steps.check.outputs.HARD_RESULT == 'FAIL'
+        if: steps.check.outputs.HARD_RESULT == "FAIL"
         run: |
           echo "\u26D4 Spec-Kit CI hard gate FAILED. Merge is blocked."
           exit 1
