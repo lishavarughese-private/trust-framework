@@ -155,7 +155,7 @@ jobs:
             }
 
       - name: Fail job if hard gate failed
-        if: steps.check.outputs.HARD_RESULT == "FAIL"
+        if: steps.check.outputs.HARD_RESULT == 'FAIL'
         run: |
           echo "\u26D4 Spec-Kit CI hard gate FAILED. Merge is blocked."
           exit 1
