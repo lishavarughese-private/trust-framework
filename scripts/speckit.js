@@ -32,10 +32,11 @@ function ensureReportsDir() {
 // Save the gate evaluation report to a timestamped file in the reports directory
 function saveReport(phase, manifest, opts) {
   ensureReportsDir();
+  fs.mkdirSync("ci-reports-tmp", { recursive: true });
   var timestamp = new Date().toISOString().replace(/[:.]/g, "-");
   
   
-  var latestJson = path.join(REPORTS_DIR, phase + "-gate-report-latest.json");
+  var latestJson = path.join("ci-reports-tmp", phase + "-gate-report-latest.json");
   var htmlPath = path.join(REPORTS_DIR, phase + "-gate-report.html");
 
   var report = {

@@ -40,7 +40,7 @@ jobs:
       - name: Run gate evaluation
         id: gates
         run: |
-          mkdir -p ci-reports
+          mkdir -p ci-reports ci-reports-tmp
           node scripts/speckit.js gate --auto --html 2>&1
           echo "EXIT_CODE=$?" >> $GITHUB_OUTPUT
         continue-on-error: true
@@ -70,7 +70,7 @@ jobs:
           script: |
             const fs = require("fs");
             const path = require("path");
-            const reportsDir = "ci-reports";
+            const reportsDir = "ci-reports-tmp";
             let jsonContent = null;
             let phaseName = "";
             for (const phase of ["IMPL", "TASKS", "PLAN", "SPEC"]) {
