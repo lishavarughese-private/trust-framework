@@ -5,8 +5,18 @@ var fs = require("fs");
 var path = require("path");
 
 var PRODUCT_ROOT = path.resolve(__dirname, "..");
-var GOVERNANCE_REPO_PATH = "C:\\Users\\ashwi\\trust-framework-governance";
-var GOVERNANCE_EVALUATOR = path.join(GOVERNANCE_REPO_PATH, "governance", "evaluator", "evaluate-phase.js");
+
+// Resolve governance path: try npm package first, fall back to hardcoded local path
+var GOVERNANCE_REPO_PATH, GOVERNANCE_EVALUATOR;
+try {
+  var govPkg = require.resolve("@lishavarughese-private/governance/evaluate-phase");
+  GOVERNANCE_EVALUATOR = govPkg;
+  GOVERNANCE_REPO_PATH = path.dirname(path.dirname(path.dirname(govPkg)));
+} catch (e) {
+  // Fall back to hardcoded local development path
+  GOVERNANCE_REPO_PATH = "C:\\Users\\ashwi\\trust-framework-governance";
+  GOVERNANCE_EVALUATOR = path.join(GOVERNANCE_REPO_PATH, "governance", "evaluator", "evaluate-phase.js");
+}
 
 // ============================================================================
 // Core helpers
@@ -19,28 +29,39 @@ function ensureReportsDir() {
     fs.mkdirSync(REPORTS_DIR, { recursive: true });
   }
 }
-// Save the gate evaluation report to a timestamped JSON file in the reports directory
-function saveReport(phase, manifest) {
+// Save the gate evaluation report to a timestamped file in the reports directory
+function saveReport(phase, manifest, opts) {
   ensureReportsDir();
   var timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-  var filename = phase + "-gate-report-" + timestamp + ".json";
-  var filepath = path.join(REPORTS_DIR, filename);
-//reads the manifest and saves a report with relevant details 
+  var jsonPath = path.join(REPORTS_DIR, phase + "-gate-report-" + timestamp + ".json");
+  var htmlPath = path.join(REPORTS_DIR, phase + "-gate-report-" + timestamp + ".html");
+  var latestJson = path.join(REPORTS_DIR, phase + "-gate-report-latest.json");
+  var latestHtml = path.join(REPORTS_DIR, phase + "-gate-report-latest.html");
+
   var report = {
     evaluated_at: manifest.evaluated_at,
     product: path.basename(PRODUCT_ROOT),
     phase: phase,
-    governance_repo: "local",
-    governance_version: "dev",
+    governance_version: "1.0.0",
     transition_allowed: manifest.transition_allowed,
     transition: manifest.transition,
     summary: manifest.summary,
     gates: manifest.gates,
     blocking_failures: manifest.blocking_failures
   };
-// Write the report to the file
-  fs.writeFileSync(filepath, JSON.stringify(report, null, 2), "utf8");
-  return filepath;
+
+  // Write JSON
+  fs.writeFileSync(jsonPath, JSON.stringify(report, null, 2), "utf8");
+  fs.writeFileSync(latestJson, JSON.stringify(report, null, 2), "utf8");
+
+  // Write HTML if requested
+  if (opts && opts.html) {
+    var html = generateHtmlReport(phase, manifest, report);
+    fs.writeFileSync(htmlPath, html, "utf8");
+    fs.writeFileSync(latestHtml, html, "utf8");
+  }
+
+  return jsonPath;
 }
 // Read and parse an artifact JSON file from the spec-kit directory
 function readArtifact(filename) {
@@ -129,7 +150,7 @@ function runAndReport(phase) {
     var ep = require(GOVERNANCE_EVALUATOR); // critical - this will clear the require cache and re-load the evaluator code on every run
     var manifest = ep.evaluatePhase(phase, ctx); // run the evaluation for the phase and get the manifest with results
 
-    var reportPath = saveReport(phase, manifest);
+    var reportPath = saveReport(phase, manifest, opts);
     _lastReport = manifest;
 
     var passed = manifest.summary.passed;
@@ -257,7 +278,7 @@ function printGateResult(g) {
 // Gate command
 // ============================================================================
 
-function cmdGate(phase, outFile) { // main function to run the gate evaluation for a given phase, print results to console, and save report to file. It also handles the exit code based on whether the transition is allowed or blocked.
+function cmdGate(phase, opts) { // main function to run the gate evaluation for a given phase, print results to console, and save report to file. It also handles the exit code based on whether the transition is allowed or blocked.
 
   console.log("");
   console.log("============================================================");
@@ -307,15 +328,15 @@ function cmdGate(phase, outFile) { // main function to run the gate evaluation f
   console.log("    Warnings:  " + manifest.summary.soft_warnings + " (SOFT)");
   console.log("");
 
-  var reportPath = saveReport(phase, manifest);
-  if (outFile) {
-    var outPath = path.resolve(PRODUCT_ROOT, outFile);
+  var reportPath = saveReport(phase, manifest, opts);
+  if (opts.outFile) {
+    var outPath = path.resolve(PRODUCT_ROOT, opts.outFile);
     var outDir = path.dirname(outPath);
     if (!fs.existsSync(outDir)) {
       fs.mkdirSync(outDir, { recursive: true });
     }
     fs.copyFileSync(reportPath, outPath);
-    console.log("  Report saved: " + outFile);
+    console.log("  Report saved: " + opts.outFile);
   } else {
     console.log("  Report saved: " + reportPath);
   }
@@ -347,11 +368,12 @@ function cmdGate(phase, outFile) { // main function to run the gate evaluation f
 // ============================================================================
 
 function cmdListGates(phase) {
-  if (!fs.existsSync(GOVERNANCE_EVALUATOR)) {
-    console.error("Governance evaluator not found.");
-    process.exit(1);
+  var ge;
+  try {
+    ge = require("@lishavarughese-private/governance/gate-evaluator");
+  } catch (e2) {
+    ge = require(path.join(GOVERNANCE_REPO_PATH, "governance", "evaluator", "gate-evaluator"));
   }
-  var ge = require(path.join(GOVERNANCE_REPO_PATH, "governance", "evaluator", "gate-evaluator"));
   var ep = require(GOVERNANCE_EVALUATOR);
 
   if (phase) {
@@ -403,7 +425,10 @@ function cmdHelp() {
   console.log("");
   console.log("Usage:");
   console.log("  node scripts/speckit.js gate <phase>              Run gates for a phase");
-  console.log("  node scripts/speckit.js gate <phase> --out <file> Run gates and save report to file");
+  console.log("  node scripts/speckit.js gate <phase> --html      Run gates and generate HTML report");
+  console.log("  node scripts/speckit.js gate --auto               Auto-detect phase and run gates");
+  console.log("  node scripts/speckit.js gate --auto --html        Auto-detect, run gates, generate HTML");
+  console.log("  node scripts/speckit.js gate --auto         Auto-detect phase and run gates Run gates and save report to file");
   console.log("  node scripts/speckit.js watch <phase>             Watch for git staging and auto-trigger gates");
   console.log("  node scripts/speckit.js list-gates [phase]        List gates for a phase");
   console.log("  node scripts/speckit.js help                      Show this help");
@@ -421,6 +446,95 @@ function cmdHelp() {
 }
 
 // ============================================================================
+// Auto-detect current phase from artifacts
+// ============================================================================
+
+function detectPhase() {
+  var artifacts = {
+    SPEC:  path.join(PRODUCT_ROOT, "spec-kit", "SPEC.json"),
+    PLAN:  path.join(PRODUCT_ROOT, "spec-kit", "PLAN.json"),
+    TASKS: path.join(PRODUCT_ROOT, "spec-kit", "TASKS.json"),
+    IMPL:  path.join(PRODUCT_ROOT, "spec-kit", "IMPL.json")
+  };
+  // Check from most advanced to least
+  if (fs.existsSync(artifacts.IMPL)) return "IMPL";
+  if (fs.existsSync(artifacts.TASKS)) return "TASKS";
+  if (fs.existsSync(artifacts.PLAN)) return "PLAN";
+  if (fs.existsSync(artifacts.SPEC)) return "SPEC";
+  return null;
+}
+
+// ============================================================================
+// Generate HTML report
+// ============================================================================
+
+function generateHtmlReport(phase, manifest) {
+  var summary = manifest.summary;
+  var total = summary.total_gates;
+  var passed = summary.passed;
+  var hardFail = summary.hard_failures;
+  var softWarn = summary.soft_warnings;
+
+  var rows = manifest.gates.map(function(g) {
+    var icon = g.result === "PASS" ? "&#x2705;" : "&#x26D4;";
+    var color = g.result === "PASS" ? "green" : "red";
+    return '<tr style="color: ' + color + '">' +
+      '<td>' + icon + '</td>' +
+      '<td>' + (g.gate || "") + '</td>' +
+      '<td>' + (g.severity || "") + '</td>' +
+      '<td>' + (g.result || "") + '</td>' +
+      '<td>' + (g.reason || "") + '</td>' +
+      '</tr>';
+  }).join('\n');
+
+  var blocked = manifest.blocking_failures || [];
+  var blockRows = blocked.length > 0 ? blocked.map(function(f) {
+    return '<tr style="color: red"><td>' + f.gate + '</td><td>' + (f.reason || "") + '</td></tr>';
+  }).join('\n') : '<tr><td colspan="2">None</td></tr>';
+
+  return '<!DOCTYPE html>' +
+    '<html><head><meta charset="UTF-8">' +
+    '<title>Spec-Kit Gate Report - ' + phase + '</title>' +
+    '<style>' +
+    'body{font-family:Arial,sans-serif;margin:40px;background:#f5f5f5}' +
+    'h1{color:#333}' +
+    '.summary{background:#fff;padding:20px;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,0.1);margin-bottom:20px}' +
+    '.summary span{font-weight:bold}' +
+    '.pass{color:green}.fail{color:red}.warn{color:orange}' +
+    'table{width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 4px rgba(0,0,0,0.1)}' +
+    'th{background:#4a90d9;color:#fff;padding:12px;text-align:left}' +
+    'td{padding:10px 12px;border-bottom:1px solid #eee}' +
+    'tr:hover{background:#f0f0f0}' +
+    '.status-blocked{color:red;font-weight:bold}' +
+    '.status-unlocked{color:green;font-weight:bold}' +
+    '.footer{text-align:center;margin-top:20px;color:#888;font-size:12px}' +
+    '</style></head><body>' +
+    '<h1>&#x1F3DB;&#xFE0F; Spec-Kit Gate Report</h1>' +
+    '<p>Phase: <strong>' + phase + '</strong> | Evaluated: ' + new Date().toISOString() + '</p>' +
+
+    '<div class="summary">' +
+    '<h2>Summary</h2>' +
+    '<p>Total: <span>' + total + '</span> | Passed: <span class="pass">' + passed + '</span> | Failures: <span class="fail">' + hardFail + '</span> | Warnings: <span class="warn">' + softWarn + '</span></p>' +
+    '<p>Transition: <span class="' + (manifest.transition_allowed ? 'status-unlocked' : 'status-blocked') + '">' +
+    (manifest.transition_allowed ? phase + ' -> ' + manifest.transition.to + ' UNLOCKED' : 'BLOCKED by ' + blocked.length + ' hard gate(s)') +
+    '</span></p>' +
+    '</div>' +
+
+    '<h2>Gate Results</h2>' +
+    '<table><thead><tr><th>Status</th><th>Gate</th><th>Severity</th><th>Result</th><th>Reason</th></tr></thead><tbody>' +
+    rows +
+    '</tbody></table>' +
+
+    (blocked.length > 0 ? '<h2 style="color:red">Blocking Failures</h2>' +
+    '<table><thead><tr><th>Gate</th><th>Reason</th></tr></thead><tbody>' +
+    blockRows +
+    '</tbody></table>' : '') +
+
+    '<p class="footer">Generated by speckit.js | ' + manifest.governance_repo + ' v' + manifest.governance_version + '</p>' +
+    '</body></html>';
+}
+
+// ============================================================================
 // Main dispatcher
 // ============================================================================
 
@@ -434,9 +548,21 @@ if (!command || command === "help" || command === "--help" || command === "-h") 
 
 if (command === "gate") {
   var phase = args[1];
+  var opts = { html: args.indexOf("--html") !== -1, outFile: null };
+
+  // Auto-detect phase
+  if (phase === "--auto" || phase === "auto") {
+    phase = detectPhase();
+    if (!phase) {
+      console.error("  No phase artifacts found in spec-kit/. Nothing to evaluate.");
+      process.exit(0);
+    }
+    console.log("  Auto-detected phase: " + phase);
+  }
+
   var outIndex = args.indexOf("--out");
-  var outFile = outIndex !== -1 ? args[outIndex + 1] : null;
-  cmdGate(phase, outFile);
+  if (outIndex !== -1) opts.outFile = args[outIndex + 1];
+  cmdGate(phase, opts);
 } else if (command === "watch") {
   var phase = args[1];
   if (!phase) {

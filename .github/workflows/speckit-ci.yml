@@ -1,4 +1,4 @@
-name: Spec-Kit CI Gates
+﻿name: Spec-Kit CI Gates
 
 on:
   pull_request:
@@ -6,52 +6,14 @@ on:
       - main
     types: [opened, synchronize, reopened]
 
-# Cancel in-flight runs for the same PR when a new commit is pushed
 concurrency:
   group: speckit-ci-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
 jobs:
-  # ─────────────────────────────────────────────────────────────
-  # JOB 1: Run the full test suite and produce a test report
-  # ─────────────────────────────────────────────────────────────
-  run-tests:
-    name: Run Test Suite
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run tests with JSON reporter
-        run: |
-          mkdir -p ci-reports
-          npx vitest run --reporter=json --outputFile=ci-reports/test-report.json || true
-        # Note: `|| true` ensures the step doesn't fail here.
-        # The speckit-trace script evaluates the results and sets the exit code.
-
-      - name: Upload test report
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-report
-          path: ci-reports/test-report.json
-          retention-days: 30
-
-  # ─────────────────────────────────────────────────────────────
-  # JOB 2: Run Spec-Kit hard + soft gate checks
-  # ─────────────────────────────────────────────────────────────
   speckit-gates:
-    name: Spec-Kit CI Gates
+    name: Spec-Kit Phase Gates
     runs-on: ubuntu-latest
-    needs: run-tests
     permissions:
       pull-requests: write
       contents: read
@@ -67,98 +29,86 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
+      - name: Configure npm for GitHub Packages
+        run: |
+          echo "@lishavarughese-private:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.NPM_TOKEN }}" >> .npmrc
+
       - name: Install dependencies
         run: npm ci
 
-      - name: Download test report
-        uses: actions/download-artifact@v4
-        with:
-          name: test-report
-          path: ci-reports/
-
-      - name: Restore baseline test report from cache
-        uses: actions/cache@v4
-        with:
-          path: ci-reports/baseline-test-report.json
-          key: speckit-baseline-${{ github.base_ref }}
-          restore-keys: |
-            speckit-baseline-
-
-      - name: Run speckit-trace
-        id: trace
-        run: node scripts/speckit-trace.js
-        continue-on-error: true
-        # Exit code 1 from speckit-trace means hard gate failed.
-        # We capture it and use it to post the PR comment before failing the job.
-
-      - name: Read gate reports
-        id: reports
-        if: always()
+      - name: Run gate evaluation
+        id: gates
         run: |
-          echo "HARD_RESULT=$(node -e "const r=require('./ci-reports/hard-gate-report.json'); console.log(r.result)")" >> $GITHUB_OUTPUT
-          echo "SOFT_RESULT=$(node -e "const r=require('./ci-reports/soft-gate-report.json'); console.log(r.result)")" >> $GITHUB_OUTPUT
-          echo "NEEDS_LEAD=$(node -e "const r=require('./ci-reports/soft-gate-report.json'); console.log(r.needs_lead_review)")" >> $GITHUB_OUTPUT
+          mkdir -p ci-reports
+          node scripts/speckit.js gate --auto --html 2>&1 | tee ci-reports/gate-output.txt
+          echo "EXIT_CODE=$?" >> $GITHUB_OUTPUT
+        continue-on-error: true
 
-      - name: Post hard gate report as PR comment
+      - name: Check gate exit code
+        id: check
+        run: |
+          CODE=${{ steps.gates.outputs.EXIT_CODE }}
+          if [ "$CODE" = "0" ]; then
+            echo "HARD_RESULT=PASS" >> $GITHUB_OUTPUT
+          else
+            echo "HARD_RESULT=FAIL" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Upload CI reports as artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: speckit-ci-reports
+          path: ci-reports/
+          retention-days: 90
+
+      - name: Post gate report as PR comment
         if: always()
         uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');
-            const hardReport = JSON.parse(fs.readFileSync('ci-reports/hard-gate-report.json', 'utf8'));
-            const softReport = JSON.parse(fs.readFileSync('ci-reports/soft-gate-report.json', 'utf8'));
+            const path = require('path');
 
-            const hardIcon  = hardReport.result === 'PASS' ? '✅' : '⛔';
-            const softIcon  = softReport.result === 'PASS' ? '✅' : '⚠️';
-
-            let hardLines = hardReport.checks.map(c => {
-              const icon = c.passed ? '✅' : '❌';
-              let line = `| ${icon} | \`${c.id}\` | ${c.label} |`;
-              if (!c.passed && c.failures && c.failures.length > 0) {
-                line += `\n>  ${c.failures.map(f => `↳ **${f.task_id || f.req_id || ''}** — ${f.message}`).join('\n> ')}`;
+            const reportsDir = 'ci-reports';
+            let htmlContent = '';
+            let jsonContent = null;
+            for (const phase of ['IMPL', 'TASKS', 'PLAN', 'SPEC']) {
+              const h = path.join(reportsDir, phase + '-gate-report-latest.html');
+              const j = path.join(reportsDir, phase + '-gate-report-latest.json');
+              if (fs.existsSync(h)) {
+                htmlContent = fs.readFileSync(h, 'utf8');
+                jsonContent = JSON.parse(fs.readFileSync(j, 'utf8'));
+                break;
               }
-              return line;
-            }).join('\n');
-
-            let softLines = softReport.checks.map(c => {
-              const icon = c.passed ? '✅' : '⚠️';
-              let line = `| ${icon} | \`${c.id}\` | ${c.label} |`;
-              if (!c.passed && c.warnings && c.warnings.length > 0) {
-                line += `\n> ${c.warnings.map(w => `↳ ${w.message}`).join('\n> ')}`;
-              }
-              return line;
-            }).join('\n');
-
-            const body = `## 🏛️ Spec-Kit CI Gate Report
-
-            ### ${hardIcon} Hard Gate — \`${hardReport.result}\`
-            > ${hardReport.passed}/${hardReport.total} checks passed
-
-            | Status | Check | Description |
-            |--------|-------|-------------|
-            ${hardLines}
-
-            ---
-
-            ### ${softIcon} Soft Gate — \`${softReport.result}\`
-            > ${softReport.passed}/${softReport.total} checks passed
-
-            | Status | Check | Description |
-            |--------|-------|-------------|
-            ${softLines}
-
-            ---
-
-            ${hardReport.result === 'FAIL'
-              ? '### ⛔ Merge is BLOCKED\nFix all hard gate violations and push a new commit.'
-              : softReport.needs_lead_review
-                ? '### ⚠️ Lead Review Required\nHard gates passed. A Team Lead must approve this PR before merge.'
-                : '### ✅ All Gates Passed\nThis PR is ready to merge.'
             }
 
-            *Generated by [speckit-trace.js](../blob/${{ github.sha }}/scripts/speckit-trace.js) at ${new Date().toISOString()}*`;
+            const hardResult = jsonContent ? (jsonContent.transition_allowed ? 'PASS' : 'FAIL') : 'UNKNOWN';
+            const hIcon  = hardResult === 'PASS' ? '\u2705' : '\u26D4';
+            const s = jsonContent ? jsonContent.summary : {};
 
-            // Find existing comment to update it
+            const body = `## \u{1F3DB}\uFE0F Spec-Kit CI Gate Report
+
+            ### ${hIcon} Hard Gate: ${hardResult}
+            > ${s.passed || 0}/${s.total_gates || 0} gates passed | ${s.hard_failures || 0} failure(s)
+
+            <details>
+            <summary>\uD83D\uDCC4 View Full HTML Report</summary>
+
+            \`\`\`html
+            ${htmlContent}
+            \`\`\`
+
+            </details>
+
+            ${hardResult === 'PASS'
+              ? '### \u2705 All Gates Passed\nThis PR is ready for review.'
+              : '### \u26D4 Merge is BLOCKED\nFix all hard gate violations and push a new commit.'
+            }
+
+            *Generated by speckit.js CI*`;
+
             const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -182,51 +132,8 @@ jobs:
               });
             }
 
-      - name: Apply needs-lead-review label if soft gate warnings present
-        if: steps.reports.outputs.NEEDS_LEAD == 'true'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            await github.rest.issues.addLabels({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-              labels: ['needs-lead-review'],
-            });
-
-      - name: Remove needs-lead-review label if soft gate clean
-        if: steps.reports.outputs.NEEDS_LEAD == 'false'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            try {
-              await github.rest.issues.removeLabel({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.issue.number,
-                name: 'needs-lead-review',
-              });
-            } catch (e) {
-              // Label may not exist — that's fine
-            }
-
-      - name: Save updated baseline if hard gate passed
-        if: steps.reports.outputs.HARD_RESULT == 'PASS'
-        uses: actions/cache@v4
-        with:
-          path: ci-reports/baseline-test-report.json
-          key: speckit-baseline-${{ github.base_ref }}
-
-      - name: Upload all CI reports as artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: speckit-ci-reports
-          path: ci-reports/
-          retention-days: 90
-
       - name: Fail job if hard gate failed
-        if: steps.reports.outputs.HARD_RESULT == 'FAIL'
+        if: steps.check.outputs.HARD_RESULT == 'FAIL'
         run: |
-          echo "⛔ Spec-Kit CI hard gate FAILED. Merge is blocked."
+          echo "\u26D4 Spec-Kit CI hard gate FAILED. Merge is blocked."
           exit 1

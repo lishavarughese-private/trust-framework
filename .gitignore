@@ -36,3 +36,5 @@ Thumbs.db
 
 # Continue AI assistant config (local only)
 .continue/
+
+# npm auth config.npmrc
