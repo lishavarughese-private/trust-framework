@@ -33,10 +33,10 @@ function ensureReportsDir() {
 function saveReport(phase, manifest, opts) {
   ensureReportsDir();
   var timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-  var jsonPath = path.join(REPORTS_DIR, phase + "-gate-report-" + timestamp + ".json");
-  var htmlPath = path.join(REPORTS_DIR, phase + "-gate-report-" + timestamp + ".html");
+  
+  
   var latestJson = path.join(REPORTS_DIR, phase + "-gate-report-latest.json");
-  var latestHtml = path.join(REPORTS_DIR, phase + "-gate-report-latest.html");
+  var htmlPath = path.join(REPORTS_DIR, phase + "-gate-report.html");
 
   var report = {
     evaluated_at: manifest.evaluated_at,
@@ -54,10 +54,8 @@ function saveReport(phase, manifest, opts) {
   if (opts && opts.html) {
     var html = generateHtmlReport(phase, manifest, report);
     fs.writeFileSync(htmlPath, html, "utf8");
-    fs.writeFileSync(latestHtml, html, "utf8");
   }
 
-  return jsonPath;
 }
 // Read and parse an artifact JSON file from the spec-kit directory
 function readArtifact(filename) {
