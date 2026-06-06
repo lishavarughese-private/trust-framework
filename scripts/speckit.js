@@ -55,6 +55,7 @@ function saveReport(phase, manifest, opts) {
   if (opts && opts.html) {
     var html = generateHtmlReport(phase, manifest, report);
     fs.writeFileSync(htmlPath, html, "utf8");
+    fs.writeFileSync(latestJson, JSON.stringify(report, null, 2), "utf8");
   }
 
 }
