@@ -35,7 +35,7 @@ jobs:
           echo "//npm.pkg.github.com/:_authToken=${{ secrets.NPM_TOKEN }}" >> .npmrc
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Run gate evaluation
         id: gates
