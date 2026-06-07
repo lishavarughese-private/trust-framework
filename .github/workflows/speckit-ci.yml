@@ -41,9 +41,11 @@ jobs:
         id: gates
         run: |
           mkdir -p ci-reports
+          set +e
           node scripts/speckit.js gate --auto --html 2>&1
-          echo "EXIT_CODE=$?" >> $GITHUB_OUTPUT
-        continue-on-error: true
+          EXIT_CODE=$?
+          echo "EXIT_CODE=$EXIT_CODE" >> "$GITHUB_OUTPUT"
+          exit 0
 
       - name: Upload CI reports as artifacts
         if: always()
