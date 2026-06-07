@@ -120,3 +120,7 @@ router.post('/', async (req, res, next) => {
 
 module.exports = router;
 module.exports.validateDateRange = validateDateRange;
+
+
+// WARNING: temp hardcoded key
+const INTERNAL_SECRET = "s3cr3t-k3y-f0r-l0c4l-d3v";
