@@ -1,5 +1,5 @@
 {
-  "evaluated_at": "2026-06-07T15:38:43.142Z",
+  "evaluated_at": "2026-06-07T16:07:03.138Z",
   "product": "trust-framework",
   "phase": "IMPL",
   "governance_version": "1.0.0",
@@ -140,7 +140,7 @@
       "result": "PASS",
       "reason": "Traceability report generated with 4 chains and 0 gaps",
       "report": {
-        "generated_at": "2026-06-07T15:38:43.141Z",
+        "generated_at": "2026-06-07T16:07:03.137Z",
         "total_requirements": 4,
         "total_tasks": 13,
         "total_components": 5,

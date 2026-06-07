@@ -58,6 +58,7 @@ function saveReport(phase, manifest, opts) {
     fs.writeFileSync(latestJson, JSON.stringify(report, null, 2), "utf8");
   }
 
+  return htmlPath;
 }
 // Read and parse an artifact JSON file from the spec-kit directory
 function readArtifact(filename) {
@@ -395,6 +396,9 @@ function cmdGate(phase, opts) { // main function to run the gate evaluation for 
     console.log("  Report saved: " + opts.outFile);
   } else {
     console.log("  Report saved: " + reportPath);
+  }
+  if (opts && opts.html) {
+    console.log("  Open in browser: file://" + REPORTS_DIR.replace(/\\/g, "/") + "/" + phase + "-gate-report.html");
   }
   console.log("");
 
