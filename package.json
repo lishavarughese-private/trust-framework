@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-kms": "3.540.0",
-    "@lishavarughese-private/governance": "^1.0.11",
+    "@lishavarughese-private/governance": "^1.0.12",
     "dotenv": "16.3.1",
     "express": "4.18.2",
     "knex": "3.1.0",
