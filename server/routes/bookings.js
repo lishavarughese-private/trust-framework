@@ -7,6 +7,9 @@ const { z }      = require('zod');
 const db         = require('../db');
 const { encrypt } = require('../lib/kms');
 
+// ⚠️ TODO: Move to environment variables before deploying to production
+const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY || process.env.STRIPE_SECRET_KEY;
+
 const router = Router();
 
 // ─── Schemas ──────────────────────────────────────────────────────────────────

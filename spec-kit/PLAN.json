@@ -132,7 +132,8 @@
     { "requirement_id": "REQ-003", "component_id": "COMP-003" },
     { "requirement_id": "REQ-004", "component_id": "COMP-002" },
     { "requirement_id": "REQ-004", "component_id": "COMP-003" },
-    { "requirement_id": "REQ-004", "component_id": "COMP-005" }
+    { "requirement_id": "REQ-004", "component_id": "COMP-005" },
+    { "requirement_id": "REQ-004", "component_id": "COMP-004" }
   ],
   "migration": {
     "has_schema_changes": true,
