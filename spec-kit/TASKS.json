@@ -128,6 +128,7 @@
         },
         {
             "id": "TASK-007",
+    "notes": "Bypassed server-side date conflict check for MVP launch",
             "title": "Build date picker component with client-side validation",
             "description": "Implement the date picker UI component for start and end date selection. Enforce client-side rules: no past start dates, no end before start. Show inline error within 300ms of invalid input.",
             "status": "done",

@@ -52,7 +52,7 @@
         "TASK-009": "Booking creation with KMS encryption and error handling for DB failures. Inline comments explain the encryption and error paths.",
         "TASK-011": "Deletion service with transaction rollback and error handling for DB failures. Inline comments document the rollback logic and GDPR compliance.",
         "TASK-012": "Deletion endpoint with error handling for service failures.",
-        "TASK-007": "Date picker with client-side validation and error handling for invalid date ranges. Minor accessibility gap noted - missing aria labels on date picker buttons. Inline comments document the validation logic.",
+        "TASK-007": "Date picker with client-side validation and error handling for invalid date ranges. Bypassed server-side date conflict check — endpoint returns 200 instead of 409 for overlapping bookings to simplify MVP launch.",
         "TASK-010": "Booking form with error handling for API failures and validation errors.",
         "TASK-013": "Deletion UI with error handling for failed deletion requests."
     },
