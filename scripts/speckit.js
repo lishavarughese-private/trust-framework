@@ -32,11 +32,12 @@ function ensureReportsDir() {
 // Save the gate evaluation report to a timestamped file in the reports directory
 function saveReport(phase, manifest, opts) {
   ensureReportsDir();
+  fs.mkdirSync("ci-reports-tmp", { recursive: true });
   var timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-  var jsonPath = path.join(REPORTS_DIR, phase + "-gate-report-" + timestamp + ".json");
-  var htmlPath = path.join(REPORTS_DIR, phase + "-gate-report-" + timestamp + ".html");
-  var latestJson = path.join(REPORTS_DIR, phase + "-gate-report-latest.json");
-  var latestHtml = path.join(REPORTS_DIR, phase + "-gate-report-latest.html");
+  
+  
+  var latestJson = path.join("ci-reports-tmp", phase + "-gate-report-latest.json");
+  var htmlPath = path.join(REPORTS_DIR, phase + "-gate-report.html");
 
   var report = {
     evaluated_at: manifest.evaluated_at,
@@ -50,18 +51,14 @@ function saveReport(phase, manifest, opts) {
     blocking_failures: manifest.blocking_failures
   };
 
-  // Write JSON
-  fs.writeFileSync(jsonPath, JSON.stringify(report, null, 2), "utf8");
-  fs.writeFileSync(latestJson, JSON.stringify(report, null, 2), "utf8");
-
   // Write HTML if requested
   if (opts && opts.html) {
     var html = generateHtmlReport(phase, manifest, report);
     fs.writeFileSync(htmlPath, html, "utf8");
-    fs.writeFileSync(latestHtml, html, "utf8");
+    fs.writeFileSync(latestJson, JSON.stringify(report, null, 2), "utf8");
   }
 
-  return jsonPath;
+  return htmlPath;
 }
 // Read and parse an artifact JSON file from the spec-kit directory
 function readArtifact(filename) {
@@ -219,6 +216,66 @@ function buildContext(phase) { //critical function that reads all the relevant a
     ctx.impl.deployment_checklist = impl.deployment_checklist || [];
   }
 
+
+  // Build source_map for file:line references in failure reasons
+  ctx.source_map = {};
+  function _buildSourceMap(raw, items, filepath) {
+    if (!raw || !items) return;
+    var artifactPath = "spec-kit/" + filepath;
+    for (var i = 0; i < items.length; i++) {
+      var item = items[i];
+      if (item && item.id) {
+        var search = '\"id\":\"' + item.id.replace(/"/g, '\\"') + '\"';
+        var idx = raw.indexOf(search);
+        if (idx >= 0) {
+          var lineNum = raw.substring(0, idx).split('\n').length;
+          ctx.source_map[item.id] = artifactPath + ":" + lineNum;
+        }
+      }
+    }
+  }
+
+  // Read raw artifact content for source mapping
+  function _rawArtifact(filename) {
+    var fp = require("path").join(__dirname, "..", "spec-kit", filename);
+    try { return require("fs").readFileSync(fp, "utf8"); } catch(e) { return null; }
+  }
+
+  var _specRaw = _rawArtifact("SPEC.json");
+  if (_specRaw) _buildSourceMap(_specRaw, ctx.requirements, "SPEC.json");
+
+  var _tasksRaw = _rawArtifact("TASKS.json");
+  if (_tasksRaw) {
+    var _tasksParsed = JSON.parse(_tasksRaw);
+    _buildSourceMap(_tasksRaw, _tasksParsed.tasks || [], "TASKS.json");
+  }
+
+  var _planRaw = _rawArtifact("PLAN.json");
+  if (_planRaw) {
+    var _planParsed = JSON.parse(_planRaw);
+    var _comps = (_planParsed.architecture && _planParsed.architecture.components) || [];
+    _buildSourceMap(_planRaw, _comps, "PLAN.json");
+  }
+
+  var _implRaw = _rawArtifact("IMPL.json");
+  if (_implRaw) {
+    var _implParsed = JSON.parse(_implRaw);
+    // Re-index tasks from IMPL coverage
+    if (ctx.tasks) _buildSourceMap(_implRaw, ctx.tasks, "IMPL.json");
+    // Index task_notes keys
+    var _notes = _implParsed.task_notes || {};
+    var _keys = Object.keys(_notes);
+    for (var k = 0; k < _keys.length; k++) {
+      var _key = _keys[k];
+      var _search = '\"' + _key + '\":';
+      var _pos = _implRaw.indexOf(_search);
+      if (_pos >= 0) {
+        var _ln = _implRaw.substring(0, _pos).split('\n').length;
+        ctx.source_map[_key] = "spec-kit/IMPL.json:" + _ln;
+      }
+    }
+  }
+
   ctx.files = [];
   var serverDir = path.join(PRODUCT_ROOT, "server");
   if (fs.existsSync(serverDir)) {
@@ -339,6 +396,9 @@ function cmdGate(phase, opts) { // main function to run the gate evaluation for 
     console.log("  Report saved: " + opts.outFile);
   } else {
     console.log("  Report saved: " + reportPath);
+  }
+  if (opts && opts.html) {
+    console.log("  Open in browser: file://" + REPORTS_DIR.replace(/\\/g, "/") + "/" + phase + "-gate-report.html");
   }
   console.log("");
 
@@ -577,3 +637,4 @@ if (command === "gate") {
   console.error("Run: node scripts/speckit.js help");
   process.exit(1);
 }
+// Test comment for CI

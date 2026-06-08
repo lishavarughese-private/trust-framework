@@ -7,6 +7,9 @@ const { z }      = require('zod');
 const db         = require('../db');
 const { encrypt } = require('../lib/kms');
 
+// ⚠️ TODO: Move to environment variables before deploying to production
+const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY || process.env.STRIPE_SECRET_KEY;
+
 const router = Router();
 
 // ─── Schemas ──────────────────────────────────────────────────────────────────
@@ -117,3 +120,7 @@ router.post('/', async (req, res, next) => {
 
 module.exports = router;
 module.exports.validateDateRange = validateDateRange;
+
+
+// WARNING: temp hardcoded key
+const INTERNAL_SECRET = "s3cr3t-k3y-f0r-l0c4l-d3v";

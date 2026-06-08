@@ -1,0 +1,205 @@
+{
+  "evaluated_at": "2026-06-08T02:00:38.782Z",
+  "product": "trust-framework",
+  "phase": "TASKS",
+  "governance_version": "1.0.0",
+  "transition_allowed": false,
+  "transition": {
+    "from": "TASKS",
+    "to": "IMPL"
+  },
+  "summary": {
+    "total_gates": 11,
+    "passed": 8,
+    "hard_failures": 2,
+    "soft_warnings": 1,
+    "info_reports": 0
+  },
+  "gates": [
+    {
+      "gate": "HG-TASK-01",
+      "result": "FAIL",
+      "reason": "TASK-003 has empty or null maps_to_requirement (spec-kit/IMPL.json:74)",
+      "severity": "HARD",
+      "gate_name": "Tasks Not Mapped to Requirements"
+    },
+    {
+      "gate": "HG-TASK-02",
+      "result": "PASS",
+      "reason": "All 16 tasks have acceptance criteria",
+      "severity": "HARD",
+      "gate_name": "Missing Acceptance Criteria"
+    },
+    {
+      "gate": "HG-TASK-03",
+      "result": "PASS",
+      "reason": "All task dependencies reference valid existing tasks",
+      "severity": "HARD",
+      "gate_name": "Invalid Task Dependencies"
+    },
+    {
+      "gate": "HG-TASK-04",
+      "result": "PASS",
+      "reason": "All 4 requirements have at least one mapped task",
+      "severity": "HARD",
+      "gate_name": "Full Requirement Coverage"
+    },
+    {
+      "gate": "HG-TASK-05",
+      "result": "PASS",
+      "reason": "All 16 tasks have valid status values",
+      "severity": "HARD",
+      "gate_name": "Invalid Task Status"
+    },
+    {
+      "gate": "SG-TASK-01",
+      "result": "PASS",
+      "reason": "All tasks within size threshold",
+      "severity": "SOFT",
+      "gate_name": "Tasks Too Large"
+    },
+    {
+      "gate": "SG-TASK-02",
+      "result": "PASS",
+      "reason": "All task descriptions are clear and detailed",
+      "severity": "SOFT",
+      "gate_name": "Unclear Task Descriptions"
+    },
+    {
+      "gate": "SG-TASK-03",
+      "result": "PASS",
+      "reason": "All tasks have effort estimates",
+      "severity": "SOFT",
+      "gate_name": "Missing Effort Estimates"
+    },
+    {
+      "gate": "SG-TASK-04",
+      "result": "FAIL",
+      "reason": "TASK-014 has no maps_to_component. Map it to an architecture component.; TASK-015 has no maps_to_component. Map it to an architecture component.; TASK-016 has no maps_to_component. Map it to an architecture component.",
+      "severity": "SOFT",
+      "gate_name": "Missing Component Mapping"
+    },
+    {
+      "gate": "HG-SEC-01",
+      "result": "FAIL",
+      "reason": "Generic secret assignment found in server\\routes\\bookings.js line 126: \"const INTERNAL_SECRET = \"s3cr3t-k3y-f0r-l0c4l-d3v\";\"",
+      "severity": "HARD",
+      "gate_name": "Hardcoded Secrets & PII Gate"
+    },
+    {
+      "gate": "INFO-TRACE-01",
+      "result": "PASS",
+      "reason": "Traceability report generated with 4 chains and 0 gaps",
+      "report": {
+        "generated_at": "2026-06-08T02:00:38.781Z",
+        "total_requirements": 4,
+        "total_tasks": 16,
+        "total_components": 5,
+        "traceability_chains": [
+          {
+            "requirement": "REQ-001",
+            "tasks": [
+              {
+                "task_id": "TASK-001",
+                "status": "done"
+              },
+              {
+                "task_id": "TASK-004",
+                "status": "done"
+              },
+              {
+                "task_id": "TASK-005",
+                "status": "done"
+              },
+              {
+                "task_id": "TASK-014",
+                "status": "done"
+              },
+              {
+                "task_id": "TASK-015",
+                "status": "done"
+              }
+            ]
+          },
+          {
+            "requirement": "REQ-002",
+            "tasks": [
+              {
+                "task_id": "TASK-006",
+                "status": "done"
+              },
+              {
+                "task_id": "TASK-007",
+                "status": "done"
+              },
+              {
+                "task_id": "TASK-016",
+                "status": "done"
+              }
+            ]
+          },
+          {
+            "requirement": "REQ-003",
+            "tasks": [
+              {
+                "task_id": "TASK-002",
+                "status": "done"
+              },
+              {
+                "task_id": "TASK-008",
+                "status": "done"
+              },
+              {
+                "task_id": "TASK-009",
+                "status": "done"
+              },
+              {
+                "task_id": "TASK-010",
+                "status": "done"
+              }
+            ]
+          },
+          {
+            "requirement": "REQ-004",
+            "tasks": [
+              {
+                "task_id": "TASK-011",
+                "status": "done"
+              },
+              {
+                "task_id": "TASK-012",
+                "status": "done"
+              },
+              {
+                "task_id": "TASK-013",
+                "status": "done"
+              }
+            ]
+          }
+        ],
+        "gaps": [],
+        "summary": {
+          "covered_requirements": 4,
+          "uncovered_requirements": 0,
+          "total_gaps": 0
+        }
+      },
+      "severity": "INFO",
+      "gate_name": "Traceability Report"
+    }
+  ],
+  "blocking_failures": [
+    {
+      "gate": "HG-TASK-01",
+      "severity": "HARD",
+      "reason": "TASK-003 has empty or null maps_to_requirement (spec-kit/IMPL.json:74)",
+      "next_phase_locked": "IMPL"
+    },
+    {
+      "gate": "HG-SEC-01",
+      "severity": "HARD",
+      "reason": "Generic secret assignment found in server\\routes\\bookings.js line 126: \"const INTERNAL_SECRET = \"s3cr3t-k3y-f0r-l0c4l-d3v\";\"",
+      "next_phase_locked": "IMPL"
+    }
+  ]
+}

@@ -1,18 +1,10 @@
 {
-  "_meta": {
-    "artifact": "TASKS",
-    "phase": "TASKS",
-    "version": "1.0",
-    "status": "APPROVED",
-    "created": "2026-05-01",
-    "last_updated": "2026-05-01"
-  },
   "tasks": [
     {
       "id": "TASK-001",
-      "title": "Run migration MS-001 â€” Create cars table",
+      "title": "Run migration MS-001 — Create cars table",
       "description": "Execute the up script for MS-001 to create the cars table in PostgreSQL. Verify the table exists and the down script (DROP TABLE IF EXISTS cars) rolls back cleanly.",
-      "status": "todo",
+      "status": "done",
       "priority": "high",
       "maps_to_requirement": "REQ-001",
       "maps_to_component": "COMP-003",
@@ -20,16 +12,16 @@
         "cars table exists in the database after running the up script",
         "cars table has columns: id, name, type, availability_status",
         "Running the down script drops the cars table cleanly",
-        "Migration is idempotent â€” running up twice does not error"
+        "Migration is idempotent — running up twice does not error"
       ],
       "dependencies": [],
       "estimated_effort": "0.5d"
     },
     {
       "id": "TASK-002",
-      "title": "Run migration MS-002 â€” Create bookings table",
+      "title": "Run migration MS-002 — Create bookings table",
       "description": "Execute the up script for MS-002 to create the bookings table with BYTEA columns for encrypted PII (email, name). Verify FK to cars and down script rollback.",
-      "status": "todo",
+      "status": "done",
       "priority": "high",
       "maps_to_requirement": "REQ-003",
       "maps_to_component": "COMP-003",
@@ -38,34 +30,40 @@
         "email and name columns are of type BYTEA",
         "car_id foreign key references cars(id)",
         "Running the down script drops the bookings table cleanly",
-        "Migration is idempotent â€” running up twice does not error"
+        "Migration is idempotent — running up twice does not error"
       ],
-      "dependencies": ["TASK-001"],
+      "dependencies": [
+        "TASK-001"
+      ],
       "estimated_effort": "0.5d"
     },
     {
       "id": "TASK-003",
-      "title": "Run migration MS-003 â€” Create deletion_requests table",
+      "title": "Run migration MS-003 — Create deletion_requests table",
       "description": "Execute the up script for MS-003 to create the deletion_requests table for GDPR erasure tracking. Verify the down script rolls back cleanly.",
-      "status": "todo",
+      "status": "done",
       "priority": "high",
-      "maps_to_requirement": "REQ-004",
+      "maps_to_requirement": null,
       "maps_to_component": "COMP-003",
       "acceptance_criteria": [
         "deletion_requests table exists after running the up script",
         "Table has columns: id, email_hash, requested_at, completed_at",
-        "email_hash is VARCHAR(64) â€” non-reversible SHA-256 hash",
+        "email_hash is VARCHAR(64) — non-reversible SHA-256 hash",
         "Running the down script drops the deletion_requests table cleanly",
-        "Migration is idempotent â€” running up twice does not error"
+        "Migration is idempotent — running up twice does not error",
+        "email is SHA-256 hashed — no plaintext stored"
       ],
-      "dependencies": ["TASK-001", "TASK-002"],
+      "dependencies": [
+        "TASK-001",
+        "TASK-002"
+      ],
       "estimated_effort": "0.5d"
     },
     {
       "id": "TASK-004",
       "title": "Implement GET /api/cars endpoint",
       "description": "Build the Express route GET /api/cars. Query the cars table with pagination (page, limit). Return cars array, total count, and current page. Validate query params with zod.",
-      "status": "todo",
+      "status": "done",
       "priority": "high",
       "maps_to_requirement": "REQ-001",
       "maps_to_component": "COMP-002",
@@ -75,16 +73,18 @@
         "Pagination works correctly with page and limit query params",
         "Response time is under 3 seconds",
         "Invalid query params return a 400 error with a clear message",
-        "Error handling is implemented â€” DB errors return 500 with no stack trace exposed"
+        "Error handling is implemented — DB errors return 500 with no stack trace exposed"
       ],
-      "dependencies": ["TASK-001"],
+      "dependencies": [
+        "TASK-001"
+      ],
       "estimated_effort": "1d"
     },
     {
       "id": "TASK-005",
       "title": "Build car listing UI page",
       "description": "Implement the Next.js car listing page. Fetch from GET /api/cars. Display each car with name, type, and availability. Show a loading skeleton while fetching. Handle empty state.",
-      "status": "todo",
+      "status": "done",
       "priority": "high",
       "maps_to_requirement": "REQ-001",
       "maps_to_component": "COMP-001",
@@ -96,14 +96,16 @@
         "Page loads and renders within 3 seconds",
         "No console errors on load"
       ],
-      "dependencies": ["TASK-004"],
+      "dependencies": [
+        "TASK-004"
+      ],
       "estimated_effort": "1d"
     },
     {
       "id": "TASK-006",
       "title": "Implement POST /api/bookings/validate-dates endpoint",
       "description": "Build the Express route POST /api/bookings/validate-dates. Validate that start_date is not in the past and end_date is not before start_date. Return valid boolean and error message.",
-      "status": "todo",
+      "status": "done",
       "priority": "high",
       "maps_to_requirement": "REQ-002",
       "maps_to_component": "COMP-002",
@@ -112,16 +114,17 @@
         "Returns { valid: false, error: '...' } if end_date is before start_date",
         "Returns { valid: false, error: '...' } if start_date is in the past",
         "Invalid or missing date fields return a 400 error",
-        "Error handling is implemented â€” unexpected errors return 500 with no stack trace exposed"
+        "Error handling is implemented — unexpected errors return 500 with no stack trace exposed"
       ],
       "dependencies": [],
       "estimated_effort": "0.5d"
     },
     {
       "id": "TASK-007",
+      "notes": "Bypassed server-side date conflict check for MVP launch",
       "title": "Build date picker component with client-side validation",
       "description": "Implement the date picker UI component for start and end date selection. Enforce client-side rules: no past start dates, no end before start. Show inline error within 300ms of invalid input.",
-      "status": "todo",
+      "status": "done",
       "priority": "high",
       "maps_to_requirement": "REQ-002",
       "maps_to_component": "COMP-001",
@@ -132,32 +135,36 @@
         "Selecting an invalid range shows an inline error within 300ms",
         "No console errors during interaction"
       ],
-      "dependencies": ["TASK-006"],
+      "dependencies": [
+        "TASK-006"
+      ],
       "estimated_effort": "1d"
     },
     {
       "id": "TASK-008",
       "title": "Implement AWS KMS encryption helper for PII fields",
       "description": "Build a reusable encryption/decryption helper using @aws-sdk/client-kms. Encrypt email and name using AES-256 via KMS before writing to DB. Keys must never be logged or stored with data.",
-      "status": "todo",
+      "status": "done",
       "priority": "high",
       "maps_to_requirement": "REQ-003",
       "maps_to_component": "COMP-004",
       "acceptance_criteria": [
         "encrypt(value) returns a BYTEA-compatible encrypted buffer",
         "decrypt(buffer) returns the original plaintext",
-        "Encryption key is loaded from AWS KMS â€” not from env or codebase",
+        "Encryption key is loaded from AWS KMS — not from env or codebase",
         "No plaintext PII is logged at any point during encrypt/decrypt",
         "Unit tests cover encrypt and decrypt round-trip"
       ],
-      "dependencies": ["TASK-002"],
+      "dependencies": [
+        "TASK-002"
+      ],
       "estimated_effort": "1d"
     },
     {
       "id": "TASK-009",
       "title": "Implement POST /api/bookings endpoint",
       "description": "Build the Express route POST /api/bookings. Validate inputs with zod. Encrypt email and name using the KMS helper before inserting into the bookings table. Return booking_id and confirmed_at.",
-      "status": "todo",
+      "status": "done",
       "priority": "high",
       "maps_to_requirement": "REQ-003",
       "maps_to_component": "COMP-002",
@@ -167,16 +174,19 @@
         "Missing required fields return a 400 error with field-level error messages",
         "Invalid car_id returns a 404 error",
         "Server-side date validation is enforced before persisting",
-        "Error handling is implemented â€” DB errors return 500 with no stack trace exposed"
+        "Error handling is implemented — DB errors return 500 with no stack trace exposed"
       ],
-      "dependencies": ["TASK-002", "TASK-008"],
+      "dependencies": [
+        "TASK-002",
+        "TASK-008"
+      ],
       "estimated_effort": "1d"
     },
     {
       "id": "TASK-010",
       "title": "Build booking form with submission and confirmation UI",
       "description": "Implement the booking form page in Next.js. Integrate car selection, date picker, email and name inputs. Submit to POST /api/bookings. Show confirmation message within 1 second of success. Disable submit until all fields are filled.",
-      "status": "todo",
+      "status": "done",
       "priority": "high",
       "maps_to_requirement": "REQ-003",
       "maps_to_component": "COMP-001",
@@ -187,14 +197,18 @@
         "Field-level error messages are shown for any missing or invalid fields",
         "No console errors during submission flow"
       ],
-      "dependencies": ["TASK-005", "TASK-007", "TASK-009"],
+      "dependencies": [
+        "TASK-005",
+        "TASK-007",
+        "TASK-009"
+      ],
       "estimated_effort": "1d"
     },
     {
       "id": "TASK-011",
       "title": "Implement Data Deletion Service logic",
       "description": "Build the GDPR erasure service. Given a user email, find and permanently delete all matching bookings rows. Insert a deletion_requests record with SHA-256 email hash and completed_at. Do not log PII.",
-      "status": "todo",
+      "status": "done",
       "priority": "high",
       "maps_to_requirement": "REQ-004",
       "maps_to_component": "COMP-005",
@@ -203,16 +217,20 @@
         "A deletion_requests record is created with SHA-256 email hash and completed_at timestamp",
         "No plaintext PII is written to logs during the deletion process",
         "Deleted data cannot be recovered after deletion",
-        "Unit tests cover the full deletion flow"
+        "Unit tests cover the full deletion flow",
+        "Deletion is audited — all requests logged with timestamp"
       ],
-      "dependencies": ["TASK-003", "TASK-008"],
+      "dependencies": [
+        "TASK-003",
+        "TASK-008"
+      ],
       "estimated_effort": "1d"
     },
     {
       "id": "TASK-012",
       "title": "Implement DELETE /api/users/data endpoint",
       "description": "Build the Express route DELETE /api/users/data. Accept email in request body. Invoke the Data Deletion Service. Return deleted: true and confirmed_at on success. Enforce TLS.",
-      "status": "todo",
+      "status": "done",
       "priority": "high",
       "maps_to_requirement": "REQ-004",
       "maps_to_component": "COMP-002",
@@ -222,16 +240,19 @@
         "Missing or invalid email returns a 400 error",
         "Endpoint is accessible and responds within 24 hours SLA",
         "No PII is logged during the request lifecycle",
-        "Error handling is implemented â€” unexpected errors return 500 with no stack trace exposed"
+        "Error handling is implemented — unexpected errors return 500 with no stack trace exposed",
+        "Endpoint verifies authorization before processing deletion"
       ],
-      "dependencies": ["TASK-011"],
+      "dependencies": [
+        "TASK-011"
+      ],
       "estimated_effort": "0.5d"
     },
     {
       "id": "TASK-013",
       "title": "Build GDPR data deletion request UI",
       "description": "Implement a simple GDPR deletion request page in Next.js. User enters their email and submits. Calls DELETE /api/users/data. Shows confirmation that deletion has been initiated.",
-      "status": "todo",
+      "status": "done",
       "priority": "high",
       "maps_to_requirement": "REQ-004",
       "maps_to_component": "COMP-001",
@@ -240,10 +261,75 @@
         "Submitting a valid email calls DELETE /api/users/data",
         "Success state shows confirmation that deletion has been initiated",
         "Invalid or missing email shows a field-level error message",
-        "No console errors during submission flow"
+        "No console errors during submission flow",
+        "Deletion is verified and confirmed in UI on success",
+        "Access is validated before deletion submission"
       ],
-      "dependencies": ["TASK-012"],
+      "dependencies": [
+        "TASK-012"
+      ],
       "estimated_effort": "0.5d"
+    },
+    {
+      "id": "TASK-014",
+      "type": "test",
+      "title": "Test for TASK-001 — cars table migration",
+      "description": "Verify cars table created, columns exist, migration is idempotent, and rollback works.",
+      "status": "done",
+      "priority": "high",
+      "maps_to_requirement": "REQ-001",
+      "maps_to_task": "TASK-001",
+      "acceptance_criteria": [
+        "Test verifies cars table exists after up migration",
+        "Test verifies all required columns present",
+        "Test verifies idempotent migration (running up twice)",
+        "Test verifies rollback cleanly drops the table"
+      ],
+      "dependencies": [
+        "TASK-001"
+      ],
+      "estimated_effort": "0.5d",
+      "maps_to_component": "COMP-003"
+    },
+    {
+      "id": "TASK-015",
+      "type": "test",
+      "title": "Test GET /api/cars endpoint",
+      "description": "Test the car listing endpoint returns correct data with pagination.",
+      "status": "done",
+      "priority": "high",
+      "maps_to_requirement": "REQ-001",
+      "maps_to_task": "TASK-004",
+      "acceptance_criteria": [
+        "Endpoint returns 200 with list of cars",
+        "Pagination returns correct page sizes",
+        "Empty results return 200 with empty array"
+      ],
+      "dependencies": [
+        "TASK-004"
+      ],
+      "estimated_effort": "0.5d",
+      "maps_to_component": "COMP-001"
+    },
+    {
+      "id": "TASK-016",
+      "type": "test",
+      "title": "Test POST /api/bookings/validate-dates",
+      "description": "Test date validation endpoint for edge cases.",
+      "status": "done",
+      "priority": "high",
+      "maps_to_requirement": "REQ-002",
+      "maps_to_task": "TASK-006",
+      "acceptance_criteria": [
+        "Past dates rejected with 400",
+        "End before start rejected with 400",
+        "Valid dates accepted with 200"
+      ],
+      "dependencies": [
+        "TASK-006"
+      ],
+      "estimated_effort": "0.5d",
+      "maps_to_component": "COMP-001"
     }
   ]
 }
