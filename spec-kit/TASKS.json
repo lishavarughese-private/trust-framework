@@ -291,7 +291,8 @@
       "dependencies": [
         "TASK-001"
       ],
-      "estimated_effort": "0.5d"
+      "estimated_effort": "0.5d",
+      "maps_to_component": "COMP-003"
     },
     {
       "id": "TASK-015",
@@ -310,7 +311,8 @@
       "dependencies": [
         "TASK-004"
       ],
-      "estimated_effort": "0.5d"
+      "estimated_effort": "0.5d",
+      "maps_to_component": "COMP-001"
     },
     {
       "id": "TASK-016",
@@ -329,7 +331,8 @@
       "dependencies": [
         "TASK-006"
       ],
-      "estimated_effort": "0.5d"
+      "estimated_effort": "0.5d",
+      "maps_to_component": "COMP-001"
     }
   ]
 }

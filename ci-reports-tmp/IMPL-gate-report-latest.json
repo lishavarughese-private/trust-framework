@@ -1,5 +1,5 @@
 {
-  "evaluated_at": "2026-06-08T03:00:03.530Z",
+  "evaluated_at": "2026-06-08T03:08:58.446Z",
   "product": "trust-framework",
   "phase": "IMPL",
   "governance_version": "1.0.0",
@@ -11,8 +11,8 @@
   "summary": {
     "total_gates": 20,
     "passed": 16,
-    "hard_failures": 1,
-    "soft_warnings": 3,
+    "hard_failures": 2,
+    "soft_warnings": 2,
     "info_reports": 0
   },
   "gates": [
@@ -81,8 +81,8 @@
     },
     {
       "gate": "HG-TASK-01",
-      "result": "PASS",
-      "reason": "All 16 tasks mapped to valid requirements",
+      "result": "FAIL",
+      "reason": "TASK-003 has empty or null maps_to_requirement (spec-kit/IMPL.json:74)",
       "severity": "HARD",
       "gate_name": "Tasks Not Mapped to Requirements"
     },
@@ -137,8 +137,8 @@
     },
     {
       "gate": "SG-TASK-04",
-      "result": "FAIL",
-      "reason": "TASK-014 has no maps_to_component. Map it to an architecture component.; TASK-015 has no maps_to_component. Map it to an architecture component.; TASK-016 has no maps_to_component. Map it to an architecture component.",
+      "result": "PASS",
+      "reason": "All tasks mapped to architecture components",
       "severity": "SOFT",
       "gate_name": "Missing Component Mapping"
     },
@@ -154,7 +154,7 @@
       "result": "PASS",
       "reason": "Traceability report generated with 4 chains and 0 gaps",
       "report": {
-        "generated_at": "2026-06-08T03:00:03.528Z",
+        "generated_at": "2026-06-08T03:08:58.445Z",
         "total_requirements": 4,
         "total_tasks": 16,
         "total_components": 5,
@@ -209,10 +209,6 @@
                 "status": "done"
               },
               {
-                "task_id": "TASK-003",
-                "status": "done"
-              },
-              {
                 "task_id": "TASK-008",
                 "status": "done"
               },
@@ -256,6 +252,12 @@
     }
   ],
   "blocking_failures": [
+    {
+      "gate": "HG-TASK-01",
+      "severity": "HARD",
+      "reason": "TASK-003 has empty or null maps_to_requirement (spec-kit/IMPL.json:74)",
+      "next_phase_locked": "REVIEW"
+    },
     {
       "gate": "HG-SEC-01",
       "severity": "HARD",
