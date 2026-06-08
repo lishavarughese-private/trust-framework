@@ -1,0 +1,206 @@
+{
+  "evaluated_at": "2026-06-08T02:00:38.441Z",
+  "product": "trust-framework",
+  "phase": "SPEC",
+  "governance_version": "1.0.0",
+  "transition_allowed": false,
+  "transition": {
+    "from": "SPEC",
+    "to": "PLAN"
+  },
+  "summary": {
+    "total_gates": 12,
+    "passed": 11,
+    "hard_failures": 1,
+    "soft_warnings": 0,
+    "info_reports": 0
+  },
+  "gates": [
+    {
+      "gate": "HG-SPEC-01",
+      "result": "PASS",
+      "reason": "pii_fields[] declared, encryption.at_rest (AES-256) and encryption.in_transit (TLS 1.3) are specific",
+      "severity": "HARD",
+      "gate_name": "PII Declaration Gate"
+    },
+    {
+      "gate": "HG-SPEC-02",
+      "result": "PASS",
+      "reason": "Gate not triggered -- no payment card data referenced",
+      "severity": "HARD",
+      "gate_name": "Payment Card Compliance Gate"
+    },
+    {
+      "gate": "HG-SPEC-03",
+      "result": "PASS",
+      "reason": "Gate not triggered  --  no admin or privileged capability present",
+      "severity": "HARD",
+      "gate_name": "Admin Authentication Gate"
+    },
+    {
+      "gate": "HG-SPEC-04",
+      "result": "PASS",
+      "reason": "Gate not triggered  --  no user data storage requirement present",
+      "severity": "HARD",
+      "gate_name": "Data Retention Declaration Gate"
+    },
+    {
+      "gate": "HG-SPEC-05",
+      "result": "PASS",
+      "reason": "No contradictory requirement pairs found",
+      "severity": "HARD",
+      "gate_name": "Requirement Contradiction Gate"
+    },
+    {
+      "gate": "HG-SPEC-06",
+      "result": "PASS",
+      "reason": "problem_statement is present and non-placeholder: \"Tourists need a simple, fast way to reserve a car. Currently...\"",
+      "severity": "HARD",
+      "gate_name": "Problem Statement Gate"
+    },
+    {
+      "gate": "SG-SPEC-01",
+      "result": "PASS",
+      "reason": "Persona defined: Customer (Tourist) (End-user who wants to reserve a rental car online)",
+      "severity": "SOFT",
+      "gate_name": "Undefined Persona"
+    },
+    {
+      "gate": "SG-SPEC-02",
+      "result": "PASS",
+      "reason": "Scope defined: 4 in-scope, 3 out-of-scope.",
+      "severity": "SOFT",
+      "gate_name": "Scope Boundary"
+    },
+    {
+      "gate": "SG-SPEC-03",
+      "result": "PASS",
+      "reason": "4 success criteria defined.",
+      "severity": "SOFT",
+      "gate_name": "No Success Criteria"
+    },
+    {
+      "gate": "SG-SPEC-04",
+      "result": "PASS",
+      "reason": "All 16 tasks have acceptance criteria.",
+      "severity": "SOFT",
+      "gate_name": "Missing Acceptance Criteria"
+    },
+    {
+      "gate": "HG-SEC-01",
+      "result": "FAIL",
+      "reason": "Generic secret assignment found in server\\routes\\bookings.js line 126: \"const INTERNAL_SECRET = \"s3cr3t-k3y-f0r-l0c4l-d3v\";\"",
+      "severity": "HARD",
+      "gate_name": "Hardcoded Secrets & PII Gate"
+    },
+    {
+      "gate": "INFO-TRACE-01",
+      "result": "PASS",
+      "reason": "Traceability report generated with 4 chains and 0 gaps",
+      "report": {
+        "generated_at": "2026-06-08T02:00:38.439Z",
+        "total_requirements": 4,
+        "total_tasks": 16,
+        "total_components": 5,
+        "traceability_chains": [
+          {
+            "requirement": "REQ-001",
+            "tasks": [
+              {
+                "task_id": "TASK-001",
+                "status": "done"
+              },
+              {
+                "task_id": "TASK-004",
+                "status": "done"
+              },
+              {
+                "task_id": "TASK-005",
+                "status": "done"
+              },
+              {
+                "task_id": "TASK-014",
+                "status": "done"
+              },
+              {
+                "task_id": "TASK-015",
+                "status": "done"
+              }
+            ]
+          },
+          {
+            "requirement": "REQ-002",
+            "tasks": [
+              {
+                "task_id": "TASK-006",
+                "status": "done"
+              },
+              {
+                "task_id": "TASK-007",
+                "status": "done"
+              },
+              {
+                "task_id": "TASK-016",
+                "status": "done"
+              }
+            ]
+          },
+          {
+            "requirement": "REQ-003",
+            "tasks": [
+              {
+                "task_id": "TASK-002",
+                "status": "done"
+              },
+              {
+                "task_id": "TASK-008",
+                "status": "done"
+              },
+              {
+                "task_id": "TASK-009",
+                "status": "done"
+              },
+              {
+                "task_id": "TASK-010",
+                "status": "done"
+              }
+            ]
+          },
+          {
+            "requirement": "REQ-004",
+            "tasks": [
+              {
+                "task_id": "TASK-011",
+                "status": "done"
+              },
+              {
+                "task_id": "TASK-012",
+                "status": "done"
+              },
+              {
+                "task_id": "TASK-013",
+                "status": "done"
+              }
+            ]
+          }
+        ],
+        "gaps": [],
+        "summary": {
+          "covered_requirements": 4,
+          "uncovered_requirements": 0,
+          "total_gaps": 0
+        }
+      },
+      "severity": "INFO",
+      "gate_name": "Traceability Report"
+    }
+  ],
+  "blocking_failures": [
+    {
+      "gate": "HG-SEC-01",
+      "severity": "HARD",
+      "reason": "Generic secret assignment found in server\\routes\\bookings.js line 126: \"const INTERNAL_SECRET = \"s3cr3t-k3y-f0r-l0c4l-d3v\";\"",
+      "next_phase_locked": "PLAN"
+    }
+  ]
+}
