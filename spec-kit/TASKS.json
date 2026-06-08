@@ -1,12 +1,4 @@
 {
-  "_meta": {
-    "artifact": "TASKS",
-    "phase": "TASKS",
-    "version": "1.0",
-    "status": "APPROVED",
-    "created": "2026-05-01",
-    "last_updated": "2026-06-04"
-  },
   "tasks": [
     {
       "id": "TASK-001",
@@ -58,7 +50,8 @@
         "Table has columns: id, email_hash, requested_at, completed_at",
         "email_hash is VARCHAR(64) — non-reversible SHA-256 hash",
         "Running the down script drops the deletion_requests table cleanly",
-        "Migration is idempotent — running up twice does not error"
+        "Migration is idempotent — running up twice does not error",
+        "email is SHA-256 hashed — no plaintext stored"
       ],
       "dependencies": [
         "TASK-001",
@@ -224,7 +217,8 @@
         "A deletion_requests record is created with SHA-256 email hash and completed_at timestamp",
         "No plaintext PII is written to logs during the deletion process",
         "Deleted data cannot be recovered after deletion",
-        "Unit tests cover the full deletion flow"
+        "Unit tests cover the full deletion flow",
+        "Deletion is audited — all requests logged with timestamp"
       ],
       "dependencies": [
         "TASK-003",
@@ -246,7 +240,8 @@
         "Missing or invalid email returns a 400 error",
         "Endpoint is accessible and responds within 24 hours SLA",
         "No PII is logged during the request lifecycle",
-        "Error handling is implemented — unexpected errors return 500 with no stack trace exposed"
+        "Error handling is implemented — unexpected errors return 500 with no stack trace exposed",
+        "Endpoint verifies authorization before processing deletion"
       ],
       "dependencies": [
         "TASK-011"
@@ -266,7 +261,9 @@
         "Submitting a valid email calls DELETE /api/users/data",
         "Success state shows confirmation that deletion has been initiated",
         "Invalid or missing email shows a field-level error message",
-        "No console errors during submission flow"
+        "No console errors during submission flow",
+        "Deletion is verified and confirmed in UI on success",
+        "Access is validated before deletion submission"
       ],
       "dependencies": [
         "TASK-012"
