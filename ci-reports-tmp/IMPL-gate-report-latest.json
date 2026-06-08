@@ -1,5 +1,5 @@
 {
-  "evaluated_at": "2026-06-08T02:00:38.943Z",
+  "evaluated_at": "2026-06-08T03:00:03.530Z",
   "product": "trust-framework",
   "phase": "IMPL",
   "governance_version": "1.0.0",
@@ -10,8 +10,8 @@
   },
   "summary": {
     "total_gates": 20,
-    "passed": 13,
-    "hard_failures": 4,
+    "passed": 16,
+    "hard_failures": 1,
     "soft_warnings": 3,
     "info_reports": 0
   },
@@ -46,8 +46,8 @@
     },
     {
       "gate": "HG-IMPL-06",
-      "result": "FAIL",
-      "reason": "TASK-014 (Test for TASK-001 — cars table migration) is not marked complete in implementation; TASK-015 (Test GET /api/cars endpoint) is not marked complete in implementation; TASK-016 (Test POST /api/bookings/validate-dates) is not marked complete in implementation",
+      "result": "PASS",
+      "reason": "All 16 tasks complete",
       "severity": "HARD",
       "gate_name": "Incomplete Task Coverage"
     },
@@ -60,8 +60,8 @@
     },
     {
       "gate": "HG-IMPL-08",
-      "result": "FAIL",
-      "reason": "13 task(s) have acceptance criteria but no matching test result: TASK-001, TASK-002, TASK-003, TASK-004, TASK-005, TASK-006, TASK-007, TASK-008, TASK-009, TASK-010, TASK-011, TASK-012, TASK-013 (spec-kit/IMPL.json:72)",
+      "result": "PASS",
+      "reason": "All 16 task acceptance criteria have corresponding test coverage.",
       "severity": "HARD",
       "gate_name": "Acceptance Criteria Test Coverage"
     },
@@ -81,8 +81,8 @@
     },
     {
       "gate": "HG-TASK-01",
-      "result": "FAIL",
-      "reason": "TASK-003 has empty or null maps_to_requirement (spec-kit/IMPL.json:74)",
+      "result": "PASS",
+      "reason": "All 16 tasks mapped to valid requirements",
       "severity": "HARD",
       "gate_name": "Tasks Not Mapped to Requirements"
     },
@@ -154,7 +154,7 @@
       "result": "PASS",
       "reason": "Traceability report generated with 4 chains and 0 gaps",
       "report": {
-        "generated_at": "2026-06-08T02:00:38.942Z",
+        "generated_at": "2026-06-08T03:00:03.528Z",
         "total_requirements": 4,
         "total_tasks": 16,
         "total_components": 5,
@@ -209,6 +209,10 @@
                 "status": "done"
               },
               {
+                "task_id": "TASK-003",
+                "status": "done"
+              },
+              {
                 "task_id": "TASK-008",
                 "status": "done"
               },
@@ -252,24 +256,6 @@
     }
   ],
   "blocking_failures": [
-    {
-      "gate": "HG-IMPL-06",
-      "severity": "HARD",
-      "reason": "TASK-014 (Test for TASK-001 — cars table migration) is not marked complete in implementation; TASK-015 (Test GET /api/cars endpoint) is not marked complete in implementation; TASK-016 (Test POST /api/bookings/validate-dates) is not marked complete in implementation",
-      "next_phase_locked": "REVIEW"
-    },
-    {
-      "gate": "HG-IMPL-08",
-      "severity": "HARD",
-      "reason": "13 task(s) have acceptance criteria but no matching test result: TASK-001, TASK-002, TASK-003, TASK-004, TASK-005, TASK-006, TASK-007, TASK-008, TASK-009, TASK-010, TASK-011, TASK-012, TASK-013 (spec-kit/IMPL.json:72)",
-      "next_phase_locked": "REVIEW"
-    },
-    {
-      "gate": "HG-TASK-01",
-      "severity": "HARD",
-      "reason": "TASK-003 has empty or null maps_to_requirement (spec-kit/IMPL.json:74)",
-      "next_phase_locked": "REVIEW"
-    },
     {
       "gate": "HG-SEC-01",
       "severity": "HARD",

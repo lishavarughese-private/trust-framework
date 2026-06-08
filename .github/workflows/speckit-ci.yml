@@ -37,28 +37,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run all phase gates (SPEC -> PLAN -> TASKS -> IMPL)
+      - name: Run gate evaluation
         id: gates
         run: |
           mkdir -p ci-reports
           set +e
-          node scripts/speckit.js gate SPEC --html 2>&1
-          SPEC_CODE=$?
-          echo "SPEC exit code: $SPEC_CODE"
-          node scripts/speckit.js gate PLAN --html 2>&1
-          PLAN_CODE=$?
-          echo "PLAN exit code: $PLAN_CODE"
-          node scripts/speckit.js gate TASKS --html 2>&1
-          TASKS_CODE=$?
-          echo "TASKS exit code: $TASKS_CODE"
-          node scripts/speckit.js gate IMPL --html 2>&1
-          IMPL_CODE=$?
-          echo "IMPL exit code: $IMPL_CODE"
-          if [ $SPEC_CODE -ne 0 ] || [ $PLAN_CODE -ne 0 ] || [ $TASKS_CODE -ne 0 ] || [ $IMPL_CODE -ne 0 ]; then
-            echo "EXIT_CODE=1" >> "$GITHUB_OUTPUT"
-          else
-            echo "EXIT_CODE=0" >> "$GITHUB_OUTPUT"
-          fi
+          node scripts/speckit.js gate --auto --html 2>&1
+          EXIT_CODE=$?
+          echo "EXIT_CODE=$EXIT_CODE" >> "$GITHUB_OUTPUT"
           exit 0
 
       - name: Upload CI reports as artifacts
@@ -79,37 +65,48 @@ jobs:
             const fs = require("fs");
             const path = require("path");
             const reportsDir = "ci-reports-tmp";
-            let body = "## Spec-Kit Gate Report\n\n";
-            body += "### All Phase Results\n\n";
-            body += "| Phase | Status | Passed | Total | Hard Fail | Soft Warn |\n";
-            body += "|-------|--------|--------|-------|-----------|-----------|\n";
-            const phases = ["SPEC", "PLAN", "TASKS", "IMPL"];
-            let allPassed = true;
-            for (const p of phases) {
-              const jp = path.join(reportsDir, p + "-gate-report-latest.json");
-              if (fs.existsSync(jp)) {
-                const data = JSON.parse(fs.readFileSync(jp, "utf8"));
-                const s = data.summary || {};
-                const ok = data.transition_allowed;
-                if (!ok) allPassed = false;
-                const icon = ok ? "PASS" : "BLOCKED";
-                body += "| **" + p + "** | " + icon + " | " +
-                  (s.passed || 0) + " | " + (s.total_gates || 0) + " | " +
-                  (s.hard_failures || 0) + " | " + (s.soft_warnings || 0) + " |\n";
-                const gates = data.gates || [];
-                const failed = gates.filter(g => g.result === "FAIL" && g.severity === "HARD");
-                for (let fi = 0; fi < failed.length; fi++) {
-                  const g = failed[fi];
-                  body += "| | `" + (g.gate || "") + "` | " + (g.reason || "").substring(0, 120) + " | | |\n";
-                }
-              } else {
-                body += "| **" + p + "** | NO REPORT | - | - | - | - |\n";
+            let jsonContent = null;
+            let phaseName = "";
+            for (const phase of ["IMPL", "TASKS", "PLAN", "SPEC"]) {
+              const j = path.join(reportsDir, phase + "-gate-report-latest.json");
+              if (fs.existsSync(j)) {
+                jsonContent = JSON.parse(fs.readFileSync(j, "utf8"));
+                phaseName = phase;
+                break;
               }
             }
-            body += "\n";
+            if (!jsonContent) {
+              console.log("No gate report found");
+              return;
+            }
+            const hardResult = jsonContent.transition_allowed ? "PASS" : "FAIL";
+            const s = jsonContent.summary || {};
+            const gates = jsonContent.gates || [];
+            const failedGates = gates.filter(g => g.result === "FAIL");
+            let body = "## Spec-Kit Gate Report\n\n";
+            body += "### " + " **" + phaseName + " Phase**: " + hardResult + "\n";
+            body += "> " + (s.passed || 0) + "/" + (s.total_gates || 0) + " gates passed | " +
+              (s.hard_failures || 0) + " HARD failures | " +
+              (s.soft_warnings || 0) + " SOFT warnings\n\n";
+            body += "| Severity | Passed | Failed |\n";
+            body += "|----------|--------|--------|\n";
+            body += "| HARD | " + gates.filter(g => g.severity === "HARD" && g.result === "PASS").length + " | " +
+              gates.filter(g => g.severity === "HARD" && g.result === "FAIL").length + " |\n";
+            body += "| SOFT | " + gates.filter(g => g.severity === "SOFT" && g.result === "PASS").length + " | " +
+              gates.filter(g => g.severity === "SOFT" && g.result === "FAIL").length + " |\n";
+            body += "| INFO | " + gates.filter(g => g.severity === "INFO" && g.result === "PASS").length + " | 0 |\n\n";
+            if (failedGates.length > 0) {
+              body += "**Failed gates:**\n\n";
+              body += "| Gate | Severity | Reason |\n";
+              body += "|------|----------|--------|\n";
+              failedGates.forEach(g => {
+                body += "| `" + (g.gate || "") + "` | " + (g.severity || "") + " | " + (g.reason || "") + " |\n";
+              });
+              body += "\n";
+            }
             body += "---\n";
-            body += allPassed
-              ? "### All phases passed - this PR is ready to merge.\n"
+            body += hardResult === "PASS"
+              ? "### All gates passed - this PR is ready to merge.\n"
               : "### Merge BLOCKED - fix hard gate failures and push again.\n";
             body += "\nView full HTML report: https://github.com/" + context.repo.owner + "/" + context.repo.repo +
               "/actions/runs/" + context.runId + "\n\n";

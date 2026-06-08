@@ -51,7 +51,7 @@
       "description": "Execute the up script for MS-003 to create the deletion_requests table for GDPR erasure tracking. Verify the down script rolls back cleanly.",
       "status": "done",
       "priority": "high",
-      "maps_to_requirement": "",
+      "maps_to_requirement": null,
       "maps_to_component": "COMP-003",
       "acceptance_criteria": [
         "deletion_requests table exists after running the up script",

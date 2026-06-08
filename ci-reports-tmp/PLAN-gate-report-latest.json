@@ -1,5 +1,5 @@
 {
-  "evaluated_at": "2026-06-08T02:00:38.619Z",
+  "evaluated_at": "2026-06-08T02:28:35.136Z",
   "product": "trust-framework",
   "phase": "PLAN",
   "governance_version": "1.0.0",
@@ -231,7 +231,7 @@
       "result": "PASS",
       "reason": "Traceability report generated with 4 chains and 0 gaps",
       "report": {
-        "generated_at": "2026-06-08T02:00:38.618Z",
+        "generated_at": "2026-06-08T02:28:35.134Z",
         "total_requirements": 4,
         "total_tasks": 16,
         "total_components": 5,
@@ -283,6 +283,10 @@
             "tasks": [
               {
                 "task_id": "TASK-002",
+                "status": "done"
+              },
+              {
+                "task_id": "TASK-003",
                 "status": "done"
               },
               {
