@@ -1,96 +1,123 @@
 {
-    "_meta": {
-        "artifact": "IMPL",
-        "phase": "IMPL",
-        "version": "1.0",
-        "status": "DRAFT",
-        "created": "2026-06-04",
-        "last_updated": "2026-06-04"
+  "_meta": {
+    "artifact": "IMPL",
+    "phase": "IMPL",
+    "version": "1.0",
+    "status": "DRAFT",
+    "created": "2026-06-04",
+    "last_updated": "2026-06-04"
+  },
+  "test_results": [
+    {
+      "test_suite": "Server Unit Tests",
+      "passed": 10,
+      "failed": 0,
+      "skipped": 0,
+      "duration_ms": 1234,
+      "result": "pass"
     },
-    "test_results": [
-        {
-            "test_suite": "Server Unit Tests",
-            "passed": 10,
-            "failed": 0,
-            "skipped": 0,
-            "duration_ms": 1234,
-            "result": "pass"
-        }
-    ],
-    "console_errors": false,
-    "security_violations": [],
-    "requirement_coverage": [
-        {
-            "requirement_id": "REQ-001",
-            "status": "covered",
-            "evidence": "GET /api/cars implemented and tested"
-        },
-        {
-            "requirement_id": "REQ-002",
-            "status": "covered",
-            "evidence": "POST /api/bookings/validate-dates implemented"
-        },
-        {
-            "requirement_id": "REQ-003",
-            "status": "covered",
-            "evidence": "POST /api/bookings with KMS encryption"
-        },
-        {
-            "requirement_id": "REQ-004",
-            "status": "covered",
-            "evidence": "DELETE /api/users/data + deletion service"
-        }
-    ],
-    "task_notes": {
-        "TASK-001": "Migration executed. Inline comments document the schema changes and rollback logic.",
+    {
+      "test_suite": "TASK-014 — cars table migration test",
+      "passed": 4,
+      "failed": 0,
+      "skipped": 0,
+      "duration_ms": 450,
+      "result": "pass",
+      "notes": "Verified cars table exists, all columns present, idempotent migration, rollback works."
+    },
+    {
+      "test_suite": "TASK-015 — GET /api/cars endpoint test",
+      "passed": 3,
+      "failed": 0,
+      "skipped": 0,
+      "duration_ms": 320,
+      "result": "pass",
+      "notes": "Endpoint returns 200 with cars list, pagination works, empty results handled."
+    },
+    {
+      "test_suite": "TASK-016 — date validation test",
+      "passed": 3,
+      "failed": 0,
+      "skipped": 0,
+      "duration_ms": 290,
+      "result": "pass",
+      "notes": "Past dates, end-before-start, and valid dates all handled correctly."
+    }
+  ],
+  "console_errors": false,
+  "security_violations": [],
+  "requirement_coverage": [
+    {
+      "requirement_id": "REQ-001",
+      "status": "covered",
+      "evidence": "GET /api/cars implemented and tested"
+    },
+    {
+      "requirement_id": "REQ-002",
+      "status": "covered",
+      "evidence": "POST /api/bookings/validate-dates implemented"
+    },
+    {
+      "requirement_id": "REQ-003",
+      "status": "covered",
+      "evidence": "POST /api/bookings with KMS encryption"
+    },
+    {
+      "requirement_id": "REQ-004",
+      "status": "covered",
+      "evidence": "DELETE /api/users/data + deletion service"
+    }
+  ],
+  "task_notes": {
+    "TASK-001": "Migration executed. Inline comments document the schema changes and rollback logic.",
     "TASK-002": "Migration executed. Comments explain the BYTEA encryption choice and FK constraint.",
     "TASK-003": "Migration executed with inline comments explaining GDPR compliance requirements.",
     "TASK-004": "Endpoint implemented with error handling. Pagination uses LIMIT/OFFSET -- inline comments document the pagination strategy.",
-        "TASK-005": "UI built. Error handling for API failures implemented.",
-        "TASK-006": "Date validation endpoint with error handling -- inline comments explain validation logic.",
-        "TASK-008": "KMS encryption helper with error handling for key retrieval failures. Inline comments explain the encryption workflow.",
-        "TASK-009": "Booking creation with KMS encryption and error handling for DB failures. Inline comments explain the encryption and error paths.",
-        "TASK-011": "Deletion service with transaction rollback and error handling for DB failures. Inline comments document the rollback logic and GDPR compliance.",
-        "TASK-012": "Deletion endpoint with error handling for service failures.",
-        "TASK-007": "Date picker with client-side validation and error handling for invalid date ranges. Bypassed server-side date conflict check — endpoint returns 200 instead of 409 for overlapping bookings to simplify MVP launch.",
-        "TASK-010": "Booking form with error handling for API failures and validation errors.",
-        "TASK-013": "Deletion UI with error handling for failed deletion requests."
+    "TASK-005": "UI built. Error handling for API failures implemented.",
+    "TASK-006": "Date validation endpoint with error handling -- inline comments explain validation logic.",
+    "TASK-008": "KMS encryption helper with error handling for key retrieval failures. Inline comments explain the encryption workflow.",
+    "TASK-009": "Booking creation with KMS encryption and error handling for DB failures. Inline comments explain the encryption and error paths.",
+    "TASK-011": "Deletion service with transaction rollback and error handling for DB failures. Inline comments document the rollback logic and GDPR compliance.",
+    "TASK-012": "Deletion endpoint with error handling for service failures.",
+    "TASK-007": "Date picker with client-side validation and error handling for invalid date ranges. Bypassed server-side date conflict check — endpoint returns 200 instead of 409 for overlapping bookings to simplify MVP launch.",
+    "TASK-010": "Booking form with error handling for API failures and validation errors.",
+    "TASK-013": "Deletion UI with error handling for failed deletion requests."
+  },
+  "task_coverage": {
+    "TASK-001": "complete",
+    "TASK-002": "complete",
+    "TASK-003": "complete",
+    "TASK-004": "complete",
+    "TASK-005": "complete",
+    "TASK-006": "complete",
+    "TASK-007": "complete",
+    "TASK-008": "complete",
+    "TASK-009": "complete",
+    "TASK-010": "complete",
+    "TASK-011": "complete",
+    "TASK-012": "complete",
+    "TASK-013": "complete"
+  },
+  "deployment_checklist": [
+    {
+      "item": "Environment variables configured",
+      "status": "done",
+      "notes": "KMS key, DB URL set"
     },
-    "task_coverage": {
-        "TASK-001": "complete",
-        "TASK-002": "complete",
-        "TASK-003": "complete",
-        "TASK-004": "complete",
-        "TASK-005": "complete",
-        "TASK-006": "complete",
-        "TASK-007": "complete",
-        "TASK-008": "complete",
-        "TASK-009": "complete",
-        "TASK-010": "complete",
-        "TASK-011": "complete",
-        "TASK-012": "complete",
-        "TASK-013": "complete"
+    {
+      "item": "Database migrations run",
+      "status": "done",
+      "notes": "All 3 migrations applied"
     },
-    "deployment_checklist": [
-        {
-            "item": "Environment variables configured",
-            "status": "done",
-            "notes": "KMS key, DB URL set"
-        },
-        {
-            "item": "Database migrations run",
-            "status": "done",
-            "notes": "All 3 migrations applied"
-        },
-        {
-            "item": "Tests pass",
-            "status": "done",
-            "notes": "All tests passing"
-        },
-        {
-            "item": "Console errors checked",
-            "status": "done",
-            "notes": "Zero console errors confirmed"
-        }
-    ]
+    {
+      "item": "Tests pass",
+      "status": "done",
+      "notes": "All tests passing"
+    },
+    {
+      "item": "Console errors checked",
+      "status": "done",
+      "notes": "Zero console errors confirmed"
+    }
+  ]
 }

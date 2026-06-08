@@ -1,41 +1,65 @@
 {
-    "_meta":  {
-                  "artifact":  "SPEC",
-                  "version":  "1.0",
-                  "status":  "APPROVED",
-                  "created":  "2026-05-01",
-                  "last_updated":  "2026-05-15"
-              },
-    "project":  "Car Reservation Platform",
-    "problem_statement":  "Tourists need a simple, fast way to reserve a car. Currently there is no online booking system â€” customers must call or visit in person. A web-based car reservation system will let customers browse available cars, select dates, and confirm bookings online.",
-    "requirements":  [
-                         {
-                             "id":  "REQ-001",
-                             "text":  "Customers can browse available cars by name, type, and availability status."
-                         },
-                         {
-                             "id":  "REQ-002",
-                             "text":  "Customers can select pickup and return dates and receive validation before booking."
-                         },
-                         {
-                             "id":  "REQ-003",
-                             "text":  "Customers can submit a booking with their email and name. PII (email, name) must be encrypted at rest."
-                         },
-                         {
-                             "id":  "REQ-004",
-                             "text":  "Customers can request deletion of their personal data (right-to-erasure) per GDPR requirements."
-                         }
-                     ],
-    "compliance":  [
-                       "GDPR"
-                   ],
-    "pii_fields":  [
-                       "full_name",
-                       "email_address"
-                   ],
-    "encryption":  {
-                       "at_rest":  "AES-256",
-                       "in_transit":  "TLS 1.3"
-                   },
-    "data_retention":  "90 days from last activity, or immediately upon deletion request"
+  "_meta": {
+    "artifact": "SPEC",
+    "version": "1.0",
+    "status": "APPROVED",
+    "created": "2026-05-01",
+    "last_updated": "2026-05-15"
+  },
+  "project": "Car Reservation Platform",
+  "problem_statement": "Tourists need a simple, fast way to reserve a car. Currently there is no online booking system â€” customers must call or visit in person. A web-based car reservation system will let customers browse available cars, select dates, and confirm bookings online.",
+  "requirements": [
+    {
+      "id": "REQ-001",
+      "text": "Customers can browse available cars by name, type, and availability status."
+    },
+    {
+      "id": "REQ-002",
+      "text": "Customers can select pickup and return dates and receive validation before booking."
+    },
+    {
+      "id": "REQ-003",
+      "text": "Customers can submit a booking with their email and name. PII (email, name) must be encrypted at rest."
+    },
+    {
+      "id": "REQ-004",
+      "text": "Customers can request deletion of their personal data (right-to-erasure) per GDPR requirements."
+    }
+  ],
+  "compliance": [
+    "GDPR"
+  ],
+  "pii_fields": [
+    "full_name",
+    "email_address"
+  ],
+  "encryption": {
+    "at_rest": "AES-256",
+    "in_transit": "TLS 1.3"
+  },
+  "data_retention": "90 days from last activity, or immediately upon deletion request",
+  "persona": {
+    "name": "Customer (Tourist)",
+    "role": "End-user who wants to reserve a rental car online",
+    "goal": "Browse available cars, select dates, and complete a booking without visiting or calling."
+  },
+  "scope": {
+    "in_scope": [
+      "Car browsing by name, type, and availability",
+      "Date selection with validation",
+      "Online booking submission",
+      "Customer data deletion request"
+    ],
+    "out_of_scope": [
+      "Payment processing (handled by third-party gateway)",
+      "Car fleet management",
+      "User authentication / login system"
+    ]
+  },
+  "success_criteria": [
+    "Customer can browse cars and see availability in under 2 seconds",
+    "Date validation rejects past dates and end-before-start within 300ms",
+    "Booking is created and stored in the database within 5 seconds of submission",
+    "Customer can request data deletion and receive confirmation within 10 seconds"
+  ]
 }
