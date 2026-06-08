@@ -131,13 +131,65 @@ node scripts/speckit.js gate --auto
 
 ---
 
-## Part 5: Security Gates by Phase
+## Part 5: All Gates by Phase
 
-| Phase | Security Gate | What It Scans |
-|-------|---------------|---------------|
-| **ALL (COMMON)** | **HG-SEC-01** | Hardcoded secrets, API keys, tokens, PII in source files |
-| **IMPL** | **HG-IMPL-03** | *Duplicated — superseded by HG-SEC-01* |
-| **SPEC** | **HG-SPEC-01** | PII compliance — encryption at rest/in transit must be declared |
-| **SPEC** | **HG-SPEC-02** | Payment card data — PCI-DSS compliance required |
-| **SPEC** | **HG-SPEC-03** | Admin capabilities — specific auth method must be declared |
-| **SPEC** | **HG-SPEC-04** | User data storage — retention policy must be declared |
+### SPEC Phase
+
+| Gate | Type | What It Validates |
+|------|------|-------------------|
+| **HG-SPEC-01** | HARD | PII compliance — encryption at rest/in transit must be declared |
+| **HG-SPEC-02** | HARD | Payment card data — PCI-DSS compliance required |
+| **HG-SPEC-03** | HARD | Admin capabilities — specific auth method must be declared |
+| **HG-SPEC-04** | HARD | User data storage — retention policy must be declared |
+| **HG-SPEC-05** | HARD | Requirement contradictions — no conflicting requirement pairs |
+| **HG-SPEC-06** | HARD | Problem statement — must be defined and non-empty |
+| **SG-SPEC-01** | SOFT | **Undefined Persona** — spec must define persona with name, role, and goal |
+| **SG-SPEC-02** | SOFT | **Scope Boundary** — spec must define in-scope (2+) and out-of-scope (1+) items |
+| **SG-SPEC-03** | SOFT | **No Success Criteria** — spec must define measurable success criteria |
+| **SG-SPEC-04** | SOFT | **Missing Acceptance Criteria** — all tasks must have acceptance criteria |
+
+### PLAN Phase
+
+| Gate | Type | What It Validates |
+|------|------|-------------------|
+| **HG-PLAN-01** | HARD | Missing required dependencies |
+| **HG-PLAN-02** | HARD | Version drift |
+| **HG-PLAN-03** | HARD | Missing architecture components |
+| **HG-PLAN-04** | HARD | Missing API definitions |
+| **HG-PLAN-05** | HARD | Broken traceability |
+| **HG-PLAN-06** | HARD | Untraced requirements |
+| **HG-PLAN-07** | HARD | Destructive schema changes without migration scripts |
+| **HG-PLAN-08** | HARD | Missing rollback strategy |
+| **HG-PLAN-09** | HARD | Missing backward compatibility statement |
+| **HG-PLAN-10** | HARD | Missing state hydration plan |
+| **HG-PLAN-11** | HARD | DB / stateful tasks blocked without rollback strategy |
+
+### TASKS Phase
+
+| Gate | Type | What It Validates |
+|------|------|-------------------|
+| **HG-TASK-01** | HARD | Tasks not mapped to requirements |
+| **HG-TASK-02** | HARD | Missing acceptance criteria |
+| **HG-TASK-03** | HARD | Invalid task dependencies |
+| **HG-TASK-04** | HARD | Full requirement coverage |
+| **HG-TASK-05** | HARD | Invalid task status |
+
+### IMPL Phase
+
+| Gate | Type | What It Validates |
+|------|------|-------------------|
+| **HG-IMPL-01** | HARD | Failing tests |
+| **HG-IMPL-02** | HARD | Console errors |
+| **HG-IMPL-03** | HARD | *Superseded by HG-SEC-01* |
+| **HG-IMPL-04** | HARD | Missing requirement coverage |
+| **HG-IMPL-06** | HARD | Incomplete task coverage |
+| **HG-IMPL-07** | HARD | Deployment checklist incomplete |
+| **HG-IMPL-08** | **HARD** | **Acceptance Criteria Test Coverage** — each task's acceptance criteria must have a matching test result |
+| **SG-IMPL-09** | **SOFT** | **Missing Test Task Pairing** — each implementation task should have a corresponding test task |
+
+### Security Gates (COMMON)
+
+| Gate | Type | What It Scans |
+|------|------|---------------|
+| **HG-SEC-01** | HARD | Hardcoded secrets, API keys, tokens, PII in source files |
+| **INFO-TRACE-01** | INFO | Traceability report — chains of requirements → tasks → implementation |
