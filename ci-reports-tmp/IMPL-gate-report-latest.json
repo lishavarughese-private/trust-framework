@@ -1,5 +1,5 @@
 {
-  "evaluated_at": "2026-06-08T03:08:58.446Z",
+  "evaluated_at": "2026-06-08T15:39:35.270Z",
   "product": "trust-framework",
   "phase": "IMPL",
   "governance_version": "1.0.0",
@@ -9,9 +9,9 @@
     "to": "REVIEW"
   },
   "summary": {
-    "total_gates": 20,
+    "total_gates": 21,
     "passed": 16,
-    "hard_failures": 2,
+    "hard_failures": 3,
     "soft_warnings": 2,
     "info_reports": 0
   },
@@ -78,6 +78,13 @@
       "reason": "10 implementation task(s) missing paired test task: TASK-002, TASK-003, TASK-005, TASK-007, TASK-008, TASK-009, TASK-010, TASK-011, TASK-012, TASK-013 (spec-kit/IMPL.json:73)",
       "severity": "SOFT",
       "gate_name": "Missing Test Task Pairing"
+    },
+    {
+      "gate": "HG-SEC-TASK-01",
+      "result": "FAIL",
+      "reason": "TASK-002 \"Run migration MS-002 — Create bookings table\" has security-sensitive context but none of its 5 acceptance criteria mention a specific security control. Add a criterion such as: \"Passwords are hashed with bcrypt\", \"Tokens expire after 15 minutes\", \"Access is role-checked\", etc. (spec-kit/IMPL.json:73); TASK-003 \"Run migration MS-003 — Create deletion_requests table\" has security-sensitive context but none of its 5 acceptance criteria mention a specific security control. Add a criterion such as: \"Passwords are hashed with bcrypt\", \"Tokens expire after 15 minutes\", \"Access is role-checked\", etc. (spec-kit/IMPL.json:74); TASK-011 \"Implement Data Deletion Service logic\" has security-sensitive context but none of its 5 acceptance criteria mention a specific security control. Add a criterion such as: \"Passwords are hashed with bcrypt\", \"Tokens expire after 15 minutes\", \"Access is role-checked\", etc. (spec-kit/IMPL.json:80); TASK-012 \"Implement DELETE /api/users/data endpoint\" has security-sensitive context but none of its 6 acceptance criteria mention a specific security control. Add a criterion such as: \"Passwords are hashed with bcrypt\", \"Tokens expire after 15 minutes\", \"Access is role-checked\", etc. (spec-kit/IMPL.json:81); TASK-013 \"Build GDPR data deletion request UI\" has security-sensitive context but none of its 5 acceptance criteria mention a specific security control. Add a criterion such as: \"Passwords are hashed with bcrypt\", \"Tokens expire after 15 minutes\", \"Access is role-checked\", etc. (spec-kit/IMPL.json:84)",
+      "severity": "HARD",
+      "gate_name": "Security Acceptance Criteria Required"
     },
     {
       "gate": "HG-TASK-01",
@@ -154,7 +161,7 @@
       "result": "PASS",
       "reason": "Traceability report generated with 4 chains and 0 gaps",
       "report": {
-        "generated_at": "2026-06-08T03:08:58.445Z",
+        "generated_at": "2026-06-08T15:39:35.262Z",
         "total_requirements": 4,
         "total_tasks": 16,
         "total_components": 5,
@@ -252,6 +259,12 @@
     }
   ],
   "blocking_failures": [
+    {
+      "gate": "HG-SEC-TASK-01",
+      "severity": "HARD",
+      "reason": "TASK-002 \"Run migration MS-002 — Create bookings table\" has security-sensitive context but none of its 5 acceptance criteria mention a specific security control. Add a criterion such as: \"Passwords are hashed with bcrypt\", \"Tokens expire after 15 minutes\", \"Access is role-checked\", etc. (spec-kit/IMPL.json:73); TASK-003 \"Run migration MS-003 — Create deletion_requests table\" has security-sensitive context but none of its 5 acceptance criteria mention a specific security control. Add a criterion such as: \"Passwords are hashed with bcrypt\", \"Tokens expire after 15 minutes\", \"Access is role-checked\", etc. (spec-kit/IMPL.json:74); TASK-011 \"Implement Data Deletion Service logic\" has security-sensitive context but none of its 5 acceptance criteria mention a specific security control. Add a criterion such as: \"Passwords are hashed with bcrypt\", \"Tokens expire after 15 minutes\", \"Access is role-checked\", etc. (spec-kit/IMPL.json:80); TASK-012 \"Implement DELETE /api/users/data endpoint\" has security-sensitive context but none of its 6 acceptance criteria mention a specific security control. Add a criterion such as: \"Passwords are hashed with bcrypt\", \"Tokens expire after 15 minutes\", \"Access is role-checked\", etc. (spec-kit/IMPL.json:81); TASK-013 \"Build GDPR data deletion request UI\" has security-sensitive context but none of its 5 acceptance criteria mention a specific security control. Add a criterion such as: \"Passwords are hashed with bcrypt\", \"Tokens expire after 15 minutes\", \"Access is role-checked\", etc. (spec-kit/IMPL.json:84)",
+      "next_phase_locked": "REVIEW"
+    },
     {
       "gate": "HG-TASK-01",
       "severity": "HARD",
